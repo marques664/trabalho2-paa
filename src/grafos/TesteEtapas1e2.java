@@ -1,5 +1,6 @@
 package grafos;
 
+import algoritmos.AlgoritmosEmGrafosImpl;
 import java.util.ArrayList;
 
 public class TesteEtapas1e2 {

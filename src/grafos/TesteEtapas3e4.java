@@ -1,5 +1,6 @@
 package grafos;
 
+import algoritmos.AlgoritmosEmGrafosImpl;
 import java.util.Collection;
 
 public class TesteEtapas3e4 {

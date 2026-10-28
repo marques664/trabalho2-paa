@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório Técnico - Trabalho Prático 2 - Teoria dos Grafos</title>
+<style>
+  @page {
+    size: A4;
+    margin: 12mm 14mm 12mm 14mm;
+  }
+  body {
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #1a202c;
+    line-height: 1.35;
+    font-size: 9.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    border-bottom: 2px solid #2b6cb0;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 15pt;
+    margin: 0 0 2px 0;
+    color: #2b6cb0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .header .sub {
+    font-size: 9pt;
+    color: #4a5568;
+    margin: 1px 0;
+  }
+  h2 {
+    font-size: 11pt;
+    color: #2b6cb0;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 2px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  h3 {
+    font-size: 9.5pt;
+    color: #2d3748;
+    margin-top: 8px;
+    margin-bottom: 2px;
+  }
+  p, ul, ol {
+    margin-top: 2px;
+    margin-bottom: 4px;
+  }
+  ul, ol {
+    padding-left: 16px;
+  }
+  li {
+    margin-bottom: 1px;
+  }
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    background-color: #edf2f7;
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+    color: #6b46c1;
+  }
+  pre {
+    background-color: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid #3182ce;
+    padding: 4px 8px;
+    font-size: 8pt;
+    line-height: 1.25;
+    font-family: Consolas, "Courier New", monospace;
+    margin: 3px 0 6px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0 8px 0;
+    font-size: 8.5pt;
+  }
+  th, td {
+    border: 1px solid #cbd5e0;
+    padding: 4px 6px;
+    text-align: left;
+  }
+  th {
+    background-color: #ebf8ff;
+    color: #2b6cb0;
+    font-weight: 600;
+  }
+  tr:nth-child(even) {
+    background-color: #f7fafc;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  .highlight-box {
+    background-color: #ebf8ff;
+    border-left: 3px solid #3182ce;
+    padding: 4px 8px;
+    margin: 4px 0;
+    font-size: 8.5pt;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Projeto e Análise de Algoritmos — Trabalho Prático 2</h1>
+  <div class="sub"><strong>IFSULDEMINAS — Campus Poços de Caldas</strong> | Engenharia de Computação</div>
+  <div class="sub"><strong>Professor:</strong> Douglas Castilho | <strong>Tema:</strong> Teoria dos Grafos em Java</div>
+</div>
+
+<h2>1. Visão Geral da Arquitetura</h2>
+<p>
+O projeto adota uma arquitetura orientada a objetos modularizada em dois pacotes principais, separando o armazenamento em memória da execução algorítmica:
+</p>
+<ul>
+  <li><code>src/grafos/</code>: Contém as interfaces base (<code>Grafo</code>, <code>AlgoritmosEmGrafos</code>), entidades (<code>Vertice</code>, <code>Aresta</code>, <code>TipoDeRepresentacao</code>, <code>FileManager</code>) e as 3 representações:
+    <ul>
+      <li><code>GrafoMatrizAdjacencia</code>: Matriz booleana de adjacência e matriz de pesos $O(V^2)$.</li>
+      <li><code>GrafoMatrizIncidencia</code>: Matriz de incidência vértices $\times$ arestas ($O(V \times A)$).</li>
+      <li><code>GrafoListaAdjacencia</code>: Vetor de listas encadeadas ($O(V + A)$).</li>
+    </ul>
+  </li>
+  <li><code>src/algoritmos/</code>: Classes especialistas com responsabilidade única:
+    <code>BuscaEmProfundidade</code>, <code>BuscaEmLargura</code>, <code>DeteccaoCiclos</code>, <code>KosarajuCFC</code>, <code>KruskalAGM</code>, <code>DijkstraCaminhoMinimo</code> e <code>FordFulkersonFluxoMaximo</code>, unificadas pela classe fachada <code>AlgoritmosEmGrafosImpl</code>.
+  </li>
+  <li><code>src/Main.java</code>: Menu interativo de console para testes e execução prática.</li>
+  <li><code>tests/</code>: Casos de teste automatizados e testes de escalabilidade/performance.</li>
+</ul>
+
+<h2>2. O Papel dos Vetores no Projeto</h2>
+<p>
+O <strong>vetor</strong> é a base estrutural de todo o sistema:
+</p>
+<ul>
+  <li><strong>Vetor de Listas de Adjacência:</strong> O grafo é estruturado como um vetor primitivo <code>ArrayList&lt;Aresta&gt;[]</code>, indexado diretamente pelo ID do vértice de origem com acesso $O(1)$.</li>
+  <li><strong>Matrizes Primitivas:</strong> Arrays primitivos bidimensionais (<code>boolean[][]</code>, <code>double[][]</code>, <code>int[][]</code>) compõem as matrizes de adjacência e incidência.</li>
+  <li><strong>Vetores de Rastreamento (DFS e BFS):</strong> Vetores nativos <code>int[] cor</code>, <code>int[] d</code>, <code>int[] f</code> e <code>Vertice[] pi</code> indexados pelo ID de cada vértice.</li>
+  <li><strong>Vetores em Union-Find (Kruskal):</strong> Os conjuntos disjuntos são operados exclusivamente sobre os vetores primitivos <code>int[] pai</code> e <code>int[] rank</code>.</li>
+  <li><strong>Vetores no Dijkstra:</strong> Vetores <code>double[] dist</code>, <code>boolean[] visitado</code> e <code>Aresta[] arestaPai</code> para relaxamento e reconstrução ordenada da rota.</li>
+  <li><strong>Vetores no Ford-Fulkerson:</strong> Matriz residual <code>double[][] rCap</code> e vetor de caminho aumentante <code>int[] pai</code>.</li>
+</ul>
+
+<h2>3. Resumo dos Algoritmos Implementados</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Algoritmo</th>
+      <th>Método / Conceito</th>
+      <th>Complexidade</th>
+      <th>Saída Produzida</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>DFS</strong></td>
+      <td>Recursão com 3 cores (Branco, Cinza, Preto)</td>
+      <td>$O(V + A)$</td>
+      <td>Tempos $d$ e $f$, antecessores $\pi$ e classificação de arestas (árvore, retorno, avanço, cruzamento).</td>
+    </tr>
+    <tr>
+      <td><strong>BFS</strong></td>
+      <td>Fila FIFO concêntrica</td>
+      <td>$O(V + A)$</td>
+      <td>Distância em saltos $d$, antecessores $\pi$ e arestas da árvore BFS.</td>
+    </tr>
+    <tr>
+      <td><strong>Ciclo</strong></td>
+      <td>Teorema da aresta de retorno na DFS</td>
+      <td>$O(V + A)$</td>
+      <td>Booleano (<code>true</code> se dígrafo tiver ciclo, <code>false</code> se for DAG).</td>
+    </tr>
+    <tr>
+      <td><strong>CFC</strong></td>
+      <td>Kosaraju-Sharir (DFS em $G$ + DFS no transposto $G^T$)</td>
+      <td>$O(V + A)$</td>
+      <td>Lista de componentes e Grafo Reduzido (Condensação).</td>
+    </tr>
+    <tr>
+      <td><strong>AGM</strong></td>
+      <td>Kruskal com Union-Find em vetor</td>
+      <td>$O(A \log A)$</td>
+      <td>Arestas da árvore geradora e custo total somado.</td>
+    </tr>
+    <tr>
+      <td><strong>Caminho Mínimo</strong></td>
+      <td>Dijkstra clássico com relaxamento guloso</td>
+      <td>$O(V^2)$</td>
+      <td>Sequência ordenada de arestas de $s$ até $t$ e custo acumulado.</td>
+    </tr>
+    <tr>
+      <td><strong>Fluxo Máximo</strong></td>
+      <td>Ford-Fulkerson (Edmonds-Karp via BFS residual)</td>
+      <td>$O(V \cdot A^2)$</td>
+      <td>Valor numérico do fluxo máximo da rede.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>4. Testes e Análise de Performance e Escalabilidade</h2>
+
+<h3>4.1. Validação no Grafo Oficial (<code>docs/Teste.txt</code>, $|V|=5$, $|A|=10$)</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Funcionalidade</th>
+      <th>Resultado Observado</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>DFS (Vértice inicial 0)</strong></td>
+      <td>4 arestas de árvore, 6 arestas de retorno (incluindo laços 0->0 e 1->1).</td>
+      <td>Aprovado</td>
+    </tr>
+    <tr>
+      <td><strong>BFS (Vértice inicial 0)</strong></td>
+      <td>Distâncias ordenadas: d[0]=0, d[1]=1, d[2]=2, d[3]=3, d[4]=4.</td>
+      <td>Aprovado</td>
+    </tr>
+    <tr>
+      <td><strong>Existe Ciclo</strong></td>
+      <td><code>true</code> no grafo de teste; <code>false</code> em DAG de controle.</td>
+      <td>Aprovado</td>
+    </tr>
+    <tr>
+      <td><strong>Componentes Fortemente Conexos</strong></td>
+      <td>1 único componente $\{0, 1, 2, 3, 4\}$; grafo reduzido com 1 nó.</td>
+      <td>Aprovado</td>
+    </tr>
+    <tr>
+      <td><strong>Árvore Geradora Mínima (AGM)</strong></td>
+      <td>Arestas: (2-3: 1), (1-2: 4), (3-4: 7), (4-0: 32). Custo Total: <strong>44.0</strong>.</td>
+      <td>Aprovado</td>
+    </tr>
+    <tr>
+      <td><strong>Caminho Mínimo (0 para 4)</strong></td>
+      <td>Rota: 0 -> 1 -> 2 -> 3 -> 4. Custo Total: <strong>62.0</strong>.</td>
+      <td>Aprovado</td>
+    </tr>
+    <tr>
+      <td><strong>Caminho Mínimo (4 para 1)</strong></td>
+      <td>Rota: 4 -> 0 -> 1. Custo Total: <strong>82.0</strong> (menor que 4->3->1 que custaria 120.0).</td>
+      <td>Aprovado</td>
+    </tr>
+    <tr>
+      <td><strong>Fluxo Máximo (0 para 4)</strong></td>
+      <td>Gargalo limitante na aresta 2->3 saturando o trajeto em <strong>1.0</strong>.</td>
+      <td>Aprovado</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>4.2. Estudo Empírico de Desempenho e Limites de Viabilidade</h3>
+<p>
+Realizamos testes de estresse com grafos aleatórios de 50 a 5.000 vértices para determinar onde as estruturas e algoritmos atingem seus limites práticos:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tamanho |V|</th>
+      <th>Lista Adj (Carga)</th>
+      <th>Matriz Inc (Carga)</th>
+      <th>DFS / BFS</th>
+      <th>Kosaraju</th>
+      <th>Kruskal</th>
+      <th>Ford-Fulkerson</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>100</strong></td>
+      <td>0 ms</td>
+      <td>19 ms</td>
+      <td>1 ms</td>
+      <td>0 ms</td>
+      <td>13 ms</td>
+      <td>1 ms</td>
+    </tr>
+    <tr>
+      <td><strong>500</strong></td>
+      <td>2 ms</td>
+      <td>1.080 ms</td>
+      <td>1 ms</td>
+      <td>4 ms</td>
+      <td>30 ms</td>
+      <td>2 ms</td>
+    </tr>
+    <tr>
+      <td><strong>1.000</strong></td>
+      <td>6 ms</td>
+      <td>8.586 ms</td>
+      <td>0 ms</td>
+      <td>10 ms</td>
+      <td>62 ms</td>
+      <td>59 ms</td>
+    </tr>
+    <tr>
+      <td><strong>2.500</strong></td>
+      <td>12 ms</td>
+      <td><em>Inviável (&gt;15s)</em></td>
+      <td>2 ms</td>
+      <td>50 ms</td>
+      <td>121 ms</td>
+      <td><em>Lento (&gt;5s)</em></td>
+    </tr>
+    <tr>
+      <td><strong>5.000</strong></td>
+      <td>25 ms</td>
+      <td><em>Inviável</em></td>
+      <td>4 ms</td>
+      <td>175 ms</td>
+      <td>493 ms</td>
+      <td><em>Inviável</em></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="highlight-box">
+  <strong>Conclusões sobre Limites de Viabilidade:</strong><br>
+  • <strong>Matriz de Incidência:</strong> Torna-se inviável a partir de <strong>$|V| \ge 1.000$</strong> vértices devido à realocação contínua de colunas por aresta ($O(V \cdot A)$).<br>
+  • <strong>Matriz de Adjacência:</strong> Torna-se inviável por estouro de memória (<code>OutOfMemoryError</code>) a partir de <strong>$|V| \ge 15.000$</strong> ($15.000^2$ posições requerem mais de 500 MB contíguos).<br>
+  • <strong>Ford-Fulkerson:</strong> Atinge limite prático a partir de <strong>$|V| \ge 2.500$</strong> em grafos densos ($O(V \cdot A^2)$).<br>
+  • <strong>Lista de Adjacência com DFS/BFS/Kosaraju:</strong> Mantém alta eficiência (&lt; 200 ms) até mesmo para mais de 10.000 vértices.
+</div>
+
+<h2>5. Como Compilar e Executar</h2>
+<p><strong>Compilação de todo o projeto e testes:</strong></p>
+<pre>$files = (Get-ChildItem -Path src,tests -Recurse -Filter *.java).FullName
+javac -encoding UTF-8 -sourcepath "src;tests" -d bin $files</pre>
+
+<p><strong>Execução do Menu Interativo:</strong></p>
+<pre>java -cp bin Main</pre>
+
+<p><strong>Execução das Suítes de Testes Automatizadas e Performance:</strong></p>
+<pre>java -ea -cp bin tests.SuiteDeTestesGerais
+java -cp bin tests.TestePerformance</pre>
+
+</body>
+</html>
