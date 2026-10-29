@@ -11,13 +11,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+// Busca em Largura (BFS)
+// Percorre o grafo nivel a nivel usando uma fila
+
 public class BuscaEmLargura {
 
-    private int[] d;              // distância / nível a partir da raiz
-    private Vertice[] pi;         // pai na árvore
+    private int[] d;              // distancia / nivel a partir da raiz
+    private Vertice[] pi;         // antecessor na arvore BFS
     private int[] cor;
     private ArrayList<Aresta> arestasArvore;
 
+    // Executa a busca em largura a partir do vertice raiz
     public Collection<Aresta> executar(Grafo g, Vertice verticeInicial) {
         int n = g.numeroDeVertices();
         cor = new int[n];
@@ -26,8 +30,8 @@ public class BuscaEmLargura {
         arestasArvore = new ArrayList<>();
 
         for (int i = 0; i < n; i++) {
-            cor[i] = 0;   // 0 = branco (não visitado)
-            d[i] = -1;    // -1 = inalcançável
+            cor[i] = 0;   // 0 = branco (nao visitado)
+            d[i] = -1;    // -1 = inalcancavel
             pi[i] = null;
         }
 
@@ -35,11 +39,11 @@ public class BuscaEmLargura {
             return arestasArvore;
         }
 
-        // Fila FIFO para percorrer nível por nível
+        // Fila FIFO para processar os vertices por ordem de descoberta
         Queue<Vertice> fila = new LinkedList<>();
 
         int s = verticeInicial.id();
-        cor[s] = 1; // 1 = cinza
+        cor[s] = 1; // 1 = cinza (descoberto)
         d[s] = 0;
         fila.add(verticeInicial);
 

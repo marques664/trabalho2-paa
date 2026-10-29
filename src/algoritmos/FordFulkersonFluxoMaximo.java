@@ -10,16 +10,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+// Algoritmo de Ford-Fulkerson (Edmonds-Karp) para Fluxo Maximo
+// Busca repetidamente caminhos aumentantes na rede residual usando BFS ate saturar a capacidade.
 public class FordFulkersonFluxoMaximo {
 
+    // Versao padrao: fonte = primeiro vertice (0), sumidouro = ultimo vertice (n - 1)
     public double executar(Grafo g) {
         if (g == null || g.numeroDeVertices() < 2) {
             return 0.0;
         }
-        // Fonte padrão: vértice 0; Sumidouro padrão: último vértice
         return executar(g, g.vertices().get(0), g.vertices().get(g.numeroDeVertices() - 1));
     }
 
+    // Calcula o valor do fluxo maximo que pode ser enviado da fonte ate o sumidouro
     public double executar(Grafo g, Vertice fonte, Vertice sumidouro) {
         if (g == null || fonte == null || sumidouro == null) {
             return 0.0;
@@ -33,7 +36,7 @@ public class FordFulkersonFluxoMaximo {
             return 0.0;
         }
 
-        // Matriz de capacidade residual
+        // Matriz de capacidade residual (guarda capacidade livre direta e fluxo reverso)
         double[][] rCap = new double[n][n];
 
         for (Vertice u : g.vertices()) {
@@ -50,30 +53,30 @@ public class FordFulkersonFluxoMaximo {
         double fluxoMaximo = 0.0;
         int[] pai = new int[n];
 
-        // Enquanto existir um caminho aumentante na rede residual de s até t
+        // Enquanto existir caminho aumentante com capacidade residual positiva de s ate t
         while (bfsCaminhoAumentante(rCap, s, t, pai, n)) {
-            // 1. Acha o gargalo (menor capacidade livre no caminho)
+            // 1. Identifica o gargalo (menor capacidade livre ao longo do caminho encontrado)
             double gargalo = Double.POSITIVE_INFINITY;
             for (int v = t; v != s; v = pai[v]) {
                 int u = pai[v];
                 gargalo = Math.min(gargalo, rCap[u][v]);
             }
 
-            // 2. Atualiza a capacidade residual direta e reversa
+            // 2. Atualiza as capacidades residuais (subtrai na ida e soma na volta para permitir cancelamento)
             for (int v = t; v != s; v = pai[v]) {
                 int u = pai[v];
                 rCap[u][v] -= gargalo;
                 rCap[v][u] += gargalo;
             }
 
-            // 3. Soma ao fluxo acumulado
+            // 3. Incrementa o fluxo maximo acumulado
             fluxoMaximo += gargalo;
         }
 
         return fluxoMaximo;
     }
 
-    // BFS para achar o caminho aumentante mais curto em número de arestas (Edmonds-Karp)
+    // BFS para encontrar o caminho aumentante mais curto em numero de arestas (Edmonds-Karp)
     private boolean bfsCaminhoAumentante(double[][] rCap, int s, int t, int[] pai, int n) {
         boolean[] visitado = new boolean[n];
         for (int i = 0; i < n; i++) {

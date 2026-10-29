@@ -2,16 +2,13 @@ package grafos;
 
 import java.util.ArrayList;
 
-/**
- * Representação de Grafo utilizando Lista de Adjacência.
- * Utiliza um vetor de listas (ArrayList<Aresta>[]), indexado diretamente pelo id do vértice de origem.
- */
+// Representacao de Grafo por Lista de Adjacencia
+// Usa um vetor de listas (ArrayList<Aresta>[]), indexado diretamente pelo id do vertice
 public class GrafoListaAdjacencia implements Grafo {
 
     private final int numVertices;
     private int numArestas;
     private final ArrayList<Vertice> vertices;
-    @SuppressWarnings("unchecked")
     private final ArrayList<Aresta>[] listaAdjacencia;
 
     @SuppressWarnings("unchecked")
@@ -36,6 +33,7 @@ public class GrafoListaAdjacencia implements Grafo {
         adicionarAresta(origem, destino, 1.0);
     }
 
+    // Adiciona a aresta na lista da origem. Se ja existir, apenas atualiza o peso.
     @Override
     public void adicionarAresta(Vertice origem, Vertice destino, double peso) throws Exception {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -43,7 +41,6 @@ public class GrafoListaAdjacencia implements Grafo {
         }
         int u = origem.id();
 
-        // Se já existe a aresta, apenas atualiza o peso
         for (Aresta a : listaAdjacencia[u]) {
             if (a.destino().id() == destino.id()) {
                 a.setarPeso(peso);
@@ -55,6 +52,7 @@ public class GrafoListaAdjacencia implements Grafo {
         numArestas++;
     }
 
+    // Percorre a lista de adjacencia da origem buscando se o destino esta presente
     @Override
     public boolean existeAresta(Vertice origem, Vertice destino) {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -68,6 +66,7 @@ public class GrafoListaAdjacencia implements Grafo {
         return false;
     }
 
+    // Grau de saida do vertice (quantidade de arestas na lista dele)
     @Override
     public int grauDoVertice(Vertice vertice) throws Exception {
         if (!verticeValido(vertice)) {
@@ -86,6 +85,7 @@ public class GrafoListaAdjacencia implements Grafo {
         return numArestas;
     }
 
+    // Retorna todos os vertices alcancaveis diretamente a partir deste vertice
     @Override
     public ArrayList<Vertice> adjacentesDe(Vertice vertice) throws Exception {
         ArrayList<Vertice> adjacentes = new ArrayList<>();
@@ -98,6 +98,7 @@ public class GrafoListaAdjacencia implements Grafo {
         return adjacentes;
     }
 
+    // Altera o peso da aresta direcionada entre origem e destino
     @Override
     public void setarPeso(Vertice origem, Vertice destino, double peso) throws Exception {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -111,6 +112,7 @@ public class GrafoListaAdjacencia implements Grafo {
         }
     }
 
+    // Retorna as arestas direcionadas que ligam a origem ao destino
     @Override
     public ArrayList<Aresta> arestasEntre(Vertice origem, Vertice destino) throws Exception {
         ArrayList<Aresta> resultado = new ArrayList<>();

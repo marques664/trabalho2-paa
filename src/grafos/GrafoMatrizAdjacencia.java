@@ -2,10 +2,8 @@ package grafos;
 
 import java.util.ArrayList;
 
-/**
- * Representação de Grafo utilizando Matriz de Adjacência.
- * Utiliza arrays primitivos bidimensionais para existência de arestas e pesos.
- */
+// Representacao de Grafo por Matriz de Adjacencia
+// Usa uma matriz booleana para existencia de arestas e uma matriz double para os pesos
 public class GrafoMatrizAdjacencia implements Grafo {
 
     private final int numVertices;
@@ -35,6 +33,7 @@ public class GrafoMatrizAdjacencia implements Grafo {
         adicionarAresta(origem, destino, 1.0);
     }
 
+    // Marca true na matriz na posicao [origem][destino] e armazena o peso
     @Override
     public void adicionarAresta(Vertice origem, Vertice destino, double peso) throws Exception {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -50,6 +49,7 @@ public class GrafoMatrizAdjacencia implements Grafo {
         matrizPesos[u][v] = peso;
     }
 
+    // Consulta direta na matriz em O(1)
     @Override
     public boolean existeAresta(Vertice origem, Vertice destino) {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -58,6 +58,7 @@ public class GrafoMatrizAdjacencia implements Grafo {
         return matrizAdjacencia[origem.id()][destino.id()];
     }
 
+    // Conta quantas posicoes estao marcadas como true na linha do vertice
     @Override
     public int grauDoVertice(Vertice vertice) throws Exception {
         if (!verticeValido(vertice)) {
@@ -83,6 +84,7 @@ public class GrafoMatrizAdjacencia implements Grafo {
         return numArestas;
     }
 
+    // Varre a linha do vertice buscando todas as colunas que possuem aresta
     @Override
     public ArrayList<Vertice> adjacentesDe(Vertice vertice) throws Exception {
         ArrayList<Vertice> adjacentes = new ArrayList<>();
@@ -98,6 +100,7 @@ public class GrafoMatrizAdjacencia implements Grafo {
         return adjacentes;
     }
 
+    // Atualiza o valor na matriz de pesos
     @Override
     public void setarPeso(Vertice origem, Vertice destino, double peso) throws Exception {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -106,6 +109,7 @@ public class GrafoMatrizAdjacencia implements Grafo {
         matrizPesos[origem.id()][destino.id()] = peso;
     }
 
+    // Se existir aresta na matriz, retorna a aresta com seu respectivo peso
     @Override
     public ArrayList<Aresta> arestasEntre(Vertice origem, Vertice destino) throws Exception {
         ArrayList<Aresta> arestas = new ArrayList<>();

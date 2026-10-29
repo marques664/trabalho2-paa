@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// Algoritmo de Dijkstra para Caminho Minimo
+// Calcula o menor trajeto entre origem e destino em grafos com pesos nao-negativos
+// utilizando busca linear no vetor de distancias O(V^2).
 public class DijkstraCaminhoMinimo {
 
+    // Retorna a sequencia ordenada de arestas que formam o caminho minimo de origem ate destino
     public ArrayList<Aresta> executar(Grafo g, Vertice origem, Vertice destino) {
         if (g == null || origem == null || destino == null) {
             return new ArrayList<>();
@@ -23,7 +27,7 @@ public class DijkstraCaminhoMinimo {
             return new ArrayList<>();
         }
 
-        // Vetores clássicos do Dijkstra
+        // Vetores de controle do Dijkstra
         double[] dist = new double[n];
         Vertice[] pi = new Vertice[n];
         Aresta[] arestaPai = new Aresta[n];
@@ -39,7 +43,7 @@ public class DijkstraCaminhoMinimo {
         dist[s] = 0.0;
 
         for (int count = 0; count < n; count++) {
-            // Encontra o vértice de menor distância ainda não visitado
+            // Seleciona o vertice nao-visitado com a menor distancia estimada
             int u = -1;
             double menorDist = Double.POSITIVE_INFINITY;
             for (int i = 0; i < n; i++) {
@@ -55,7 +59,7 @@ public class DijkstraCaminhoMinimo {
 
             visitado[u] = true;
             if (u == t) {
-                break; // Chegou ao destino
+                break; // Destino alcancado
             }
 
             // Relaxamento das arestas que partem de u
@@ -78,10 +82,10 @@ public class DijkstraCaminhoMinimo {
         }
 
         if (dist[t] == Double.POSITIVE_INFINITY) {
-            return new ArrayList<>(); // Não existe caminho até t
+            return new ArrayList<>(); // Nao ha caminho possivel ate o destino
         }
 
-        // Reconstrói o caminho de trás para frente usando o vetor arestaPai
+        // Reconstroi o caminho de tras para frente usando o vetor arestaPai
         ArrayList<Aresta> caminho = new ArrayList<>();
         int atual = t;
         while (atual != s && arestaPai[atual] != null) {
@@ -89,7 +93,7 @@ public class DijkstraCaminhoMinimo {
             atual = pi[atual].id();
         }
 
-        Collections.reverse(caminho); // Fica na ordem s -> ... -> t
+        Collections.reverse(caminho); // Inverte para ficar ordenado de s ate t
         return caminho;
     }
 
@@ -109,6 +113,7 @@ public class DijkstraCaminhoMinimo {
         }
     }
 
+    // Calcula a soma dos pesos das arestas do caminho percorrido
     public double calcularCusto(Grafo g, ArrayList<Aresta> arestas, Vertice origem, Vertice destino) {
         if (arestas == null || arestas.isEmpty()) {
             return 0.0;

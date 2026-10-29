@@ -121,9 +121,9 @@ O projeto adota uma arquitetura orientada a objetos modularizada em dois pacotes
 <ul>
   <li><code>src/grafos/</code>: Contém as interfaces base (<code>Grafo</code>, <code>AlgoritmosEmGrafos</code>), entidades (<code>Vertice</code>, <code>Aresta</code>, <code>TipoDeRepresentacao</code>, <code>FileManager</code>) e as 3 representações:
     <ul>
-      <li><code>GrafoMatrizAdjacencia</code>: Matriz booleana de adjacência e matriz de pesos $O(V^2)$.</li>
-      <li><code>GrafoMatrizIncidencia</code>: Matriz de incidência vértices $\times$ arestas ($O(V \times A)$).</li>
-      <li><code>GrafoListaAdjacencia</code>: Vetor de listas encadeadas ($O(V + A)$).</li>
+      <li><code>GrafoMatrizAdjacencia</code>: Matriz booleana de adjacência e matriz de pesos <i>O(V&sup2;)</i>.</li>
+      <li><code>GrafoMatrizIncidencia</code>: Matriz de incidência vértices &times; arestas (<i>O(V &times; A)</i>).</li>
+      <li><code>GrafoListaAdjacencia</code>: Vetor de listas encadeadas (<i>O(V + A)</i>).</li>
     </ul>
   </li>
   <li><code>src/algoritmos/</code>: Classes especialistas com responsabilidade única:
@@ -138,7 +138,7 @@ O projeto adota uma arquitetura orientada a objetos modularizada em dois pacotes
 O <strong>vetor</strong> é a base estrutural de todo o sistema:
 </p>
 <ul>
-  <li><strong>Vetor de Listas de Adjacência:</strong> O grafo é estruturado como um vetor primitivo <code>ArrayList&lt;Aresta&gt;[]</code>, indexado diretamente pelo ID do vértice de origem com acesso $O(1)$.</li>
+  <li><strong>Vetor de Listas de Adjacência:</strong> O grafo é estruturado como um vetor primitivo <code>ArrayList&lt;Aresta&gt;[]</code>, indexado diretamente pelo ID do vértice de origem com acesso <i>O(1)</i>.</li>
   <li><strong>Matrizes Primitivas:</strong> Arrays primitivos bidimensionais (<code>boolean[][]</code>, <code>double[][]</code>, <code>int[][]</code>) compõem as matrizes de adjacência e incidência.</li>
   <li><strong>Vetores de Rastreamento (DFS e BFS):</strong> Vetores nativos <code>int[] cor</code>, <code>int[] d</code>, <code>int[] f</code> e <code>Vertice[] pi</code> indexados pelo ID de cada vértice.</li>
   <li><strong>Vetores em Union-Find (Kruskal):</strong> Os conjuntos disjuntos são operados exclusivamente sobre os vetores primitivos <code>int[] pai</code> e <code>int[] rank</code>.</li>
@@ -160,43 +160,43 @@ O <strong>vetor</strong> é a base estrutural de todo o sistema:
     <tr>
       <td><strong>DFS</strong></td>
       <td>Recursão com 3 cores (Branco, Cinza, Preto)</td>
-      <td>$O(V + A)$</td>
-      <td>Tempos $d$ e $f$, antecessores $\pi$ e classificação de arestas (árvore, retorno, avanço, cruzamento).</td>
+      <td><i>O(V + A)</i></td>
+      <td>Tempos <i>d</i> e <i>f</i>, antecessores &pi; e classificação de arestas (árvore, retorno, avanço, cruzamento).</td>
     </tr>
     <tr>
       <td><strong>BFS</strong></td>
       <td>Fila FIFO concêntrica</td>
-      <td>$O(V + A)$</td>
-      <td>Distância em saltos $d$, antecessores $\pi$ e arestas da árvore BFS.</td>
+      <td><i>O(V + A)</i></td>
+      <td>Distância em saltos <i>d</i>, antecessores &pi; e arestas da árvore BFS.</td>
     </tr>
     <tr>
       <td><strong>Ciclo</strong></td>
       <td>Teorema da aresta de retorno na DFS</td>
-      <td>$O(V + A)$</td>
+      <td><i>O(V + A)</i></td>
       <td>Booleano (<code>true</code> se dígrafo tiver ciclo, <code>false</code> se for DAG).</td>
     </tr>
     <tr>
       <td><strong>CFC</strong></td>
-      <td>Kosaraju-Sharir (DFS em $G$ + DFS no transposto $G^T$)</td>
-      <td>$O(V + A)$</td>
+      <td>Kosaraju-Sharir (DFS em <i>G</i> + DFS no transposto <i>G<sup>T</sup></i>)</td>
+      <td><i>O(V + A)</i></td>
       <td>Lista de componentes e Grafo Reduzido (Condensação).</td>
     </tr>
     <tr>
       <td><strong>AGM</strong></td>
       <td>Kruskal com Union-Find em vetor</td>
-      <td>$O(A \log A)$</td>
+      <td><i>O(A log A)</i></td>
       <td>Arestas da árvore geradora e custo total somado.</td>
     </tr>
     <tr>
       <td><strong>Caminho Mínimo</strong></td>
       <td>Dijkstra clássico com relaxamento guloso</td>
-      <td>$O(V^2)$</td>
-      <td>Sequência ordenada de arestas de $s$ até $t$ e custo acumulado.</td>
+      <td><i>O(V&sup2;)</i></td>
+      <td>Sequência ordenada de arestas de <i>s</i> até <i>t</i> e custo acumulado.</td>
     </tr>
     <tr>
       <td><strong>Fluxo Máximo</strong></td>
       <td>Ford-Fulkerson (Edmonds-Karp via BFS residual)</td>
-      <td>$O(V \cdot A^2)$</td>
+      <td><i>O(V &middot; A&sup2;)</i></td>
       <td>Valor numérico do fluxo máximo da rede.</td>
     </tr>
   </tbody>
@@ -206,7 +206,7 @@ O <strong>vetor</strong> é a base estrutural de todo o sistema:
 
 <h2>4. Testes e Análise de Performance e Escalabilidade</h2>
 
-<h3>4.1. Validação no Grafo Oficial (<code>docs/Teste.txt</code>, $|V|=5$, $|A|=10$)</h3>
+<h3>4.1. Validação no Grafo Oficial (<code>docs/Teste.txt</code>, |V| = 5, |A| = 10)</h3>
 <table>
   <thead>
     <tr>
@@ -218,7 +218,7 @@ O <strong>vetor</strong> é a base estrutural de todo o sistema:
   <tbody>
     <tr>
       <td><strong>DFS (Vértice inicial 0)</strong></td>
-      <td>4 arestas de árvore, 6 arestas de retorno (incluindo laços 0->0 e 1->1).</td>
+      <td>4 arestas de árvore, 6 arestas de retorno (incluindo laços 0-&gt;0 e 1-&gt;1).</td>
       <td>Aprovado</td>
     </tr>
     <tr>
@@ -233,7 +233,7 @@ O <strong>vetor</strong> é a base estrutural de todo o sistema:
     </tr>
     <tr>
       <td><strong>Componentes Fortemente Conexos</strong></td>
-      <td>1 único componente $\{0, 1, 2, 3, 4\}$; grafo reduzido com 1 nó.</td>
+      <td>1 único componente {0, 1, 2, 3, 4}; grafo reduzido com 1 nó.</td>
       <td>Aprovado</td>
     </tr>
     <tr>
@@ -243,17 +243,17 @@ O <strong>vetor</strong> é a base estrutural de todo o sistema:
     </tr>
     <tr>
       <td><strong>Caminho Mínimo (0 para 4)</strong></td>
-      <td>Rota: 0 -> 1 -> 2 -> 3 -> 4. Custo Total: <strong>62.0</strong>.</td>
+      <td>Rota: 0 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4. Custo Total: <strong>62.0</strong>.</td>
       <td>Aprovado</td>
     </tr>
     <tr>
       <td><strong>Caminho Mínimo (4 para 1)</strong></td>
-      <td>Rota: 4 -> 0 -> 1. Custo Total: <strong>82.0</strong> (menor que 4->3->1 que custaria 120.0).</td>
+      <td>Rota: 4 -&gt; 0 -&gt; 1. Custo Total: <strong>82.0</strong> (menor que 4-&gt;3-&gt;1 que custaria 120.0).</td>
       <td>Aprovado</td>
     </tr>
     <tr>
       <td><strong>Fluxo Máximo (0 para 4)</strong></td>
-      <td>Gargalo limitante na aresta 2->3 saturando o trajeto em <strong>1.0</strong>.</td>
+      <td>Gargalo limitante na aresta 2-&gt;3 saturando o trajeto em <strong>1.0</strong>.</td>
       <td>Aprovado</td>
     </tr>
   </tbody>
@@ -280,7 +280,7 @@ Realizamos testes de estresse com grafos aleatórios de 50 a 5.000 vértices par
     <tr>
       <td><strong>100</strong></td>
       <td>0 ms</td>
-      <td>19 ms</td>
+      <td>20 ms</td>
       <td>1 ms</td>
       <td>0 ms</td>
       <td>13 ms</td>
@@ -288,49 +288,49 @@ Realizamos testes de estresse com grafos aleatórios de 50 a 5.000 vértices par
     </tr>
     <tr>
       <td><strong>500</strong></td>
+      <td>0 ms</td>
+      <td>732 ms</td>
+      <td>0 ms</td>
       <td>2 ms</td>
-      <td>1.080 ms</td>
-      <td>1 ms</td>
-      <td>4 ms</td>
-      <td>30 ms</td>
+      <td>29 ms</td>
       <td>2 ms</td>
     </tr>
     <tr>
       <td><strong>1.000</strong></td>
-      <td>6 ms</td>
-      <td>8.586 ms</td>
       <td>0 ms</td>
-      <td>10 ms</td>
-      <td>62 ms</td>
-      <td>59 ms</td>
+      <td>8.687 ms</td>
+      <td>0 ms</td>
+      <td>2 ms</td>
+      <td>80 ms</td>
+      <td>67 ms</td>
     </tr>
     <tr>
       <td><strong>2.500</strong></td>
-      <td>12 ms</td>
+      <td>1 ms</td>
       <td><em>Inviável (&gt;15s)</em></td>
-      <td>2 ms</td>
-      <td>50 ms</td>
-      <td>121 ms</td>
+      <td>1 ms</td>
+      <td>6 ms</td>
+      <td>114 ms</td>
       <td><em>Lento (&gt;5s)</em></td>
     </tr>
     <tr>
       <td><strong>5.000</strong></td>
-      <td>25 ms</td>
+      <td>2 ms</td>
       <td><em>Inviável</em></td>
-      <td>4 ms</td>
-      <td>175 ms</td>
-      <td>493 ms</td>
-      <td><em>Inviável</em></td>
+      <td>2 ms</td>
+      <td>10 ms</td>
+      <td>460 ms</td>
+      <td><em>Lento (&gt;5s)</em></td>
     </tr>
   </tbody>
 </table>
 
 <div class="highlight-box">
   <strong>Conclusões sobre Limites de Viabilidade:</strong><br>
-  • <strong>Matriz de Incidência:</strong> Torna-se inviável a partir de <strong>$|V| \ge 1.000$</strong> vértices devido à realocação contínua de colunas por aresta ($O(V \cdot A)$).<br>
-  • <strong>Matriz de Adjacência:</strong> Torna-se inviável por estouro de memória (<code>OutOfMemoryError</code>) a partir de <strong>$|V| \ge 15.000$</strong> ($15.000^2$ posições requerem mais de 500 MB contíguos).<br>
-  • <strong>Ford-Fulkerson:</strong> Atinge limite prático a partir de <strong>$|V| \ge 2.500$</strong> em grafos densos ($O(V \cdot A^2)$).<br>
-  • <strong>Lista de Adjacência com DFS/BFS/Kosaraju:</strong> Mantém alta eficiência (&lt; 200 ms) até mesmo para mais de 10.000 vértices.
+  • <strong>Matriz de Incidência:</strong> Torna-se inviável a partir de <strong>|V| &ge; 1.000</strong> vértices devido à realocação contínua de colunas por aresta (<i>O(V &times; A)</i>).<br>
+  • <strong>Matriz de Adjacência:</strong> Torna-se inviável por estouro de memória (<code>OutOfMemoryError</code>) a partir de <strong>|V| &ge; 15.000</strong> (15.000&sup2; posições requerem mais de 500 MB contíguos de memória heap).<br>
+  • <strong>Ford-Fulkerson:</strong> Atinge limite prático a partir de <strong>|V| &ge; 2.500</strong> em grafos densos (<i>O(V &middot; A&sup2;)</i>).<br>
+  • <strong>Lista de Adjacência com DFS/BFS/Kosaraju:</strong> Mantém altíssima eficiência (&le; 10 ms) mesmo para 5.000 vértices com densidade moderada.
 </div>
 
 <h2>5. Como Compilar e Executar</h2>

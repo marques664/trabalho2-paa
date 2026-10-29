@@ -2,18 +2,15 @@ package grafos;
 
 import java.util.ArrayList;
 
-/**
- * Representação de Grafo utilizando Matriz de Incidência.
- * Em um dígrafo, cada coluna representa uma aresta e cada linha representa um vértice.
- * Para uma aresta de u para v (u != v): linha u recebe -1 (saída) e linha v recebe +1 (chegada).
- * Para um laço de u para u: linha u recebe 2.
- */
+// Representacao de Grafo por Matriz de Incidencia (V x A).
+// Linhas representam vertices e colunas representam arestas.
+// Convencao para digrafos: -1 na origem (saida), +1 no destino (chegada) e 2 em lacos.
 public class GrafoMatrizIncidencia implements Grafo {
 
     private final int numVertices;
     private final ArrayList<Vertice> vertices;
     private final ArrayList<Aresta> arestas;
-    private int[][] matrizIncidencia; // linhas: vértices, colunas: arestas
+    private int[][] matrizIncidencia;
 
     public GrafoMatrizIncidencia(int numVertices) {
         this.numVertices = Math.max(0, numVertices);
@@ -30,6 +27,7 @@ public class GrafoMatrizIncidencia implements Grafo {
         return v != null && v.id() >= 0 && v.id() < numVertices;
     }
 
+    // Busca a coluna correspondente a aresta de u para v
     private int encontrarColunaDaAresta(int u, int v) {
         for (int j = 0; j < arestas.size(); j++) {
             Aresta a = arestas.get(j);
@@ -45,6 +43,7 @@ public class GrafoMatrizIncidencia implements Grafo {
         adicionarAresta(origem, destino, 1.0);
     }
 
+    // Adiciona uma nova coluna a matriz redimensionando-a e marcando saida (-1) e chegada (+1)
     @Override
     public void adicionarAresta(Vertice origem, Vertice destino, double peso) throws Exception {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -73,15 +72,16 @@ public class GrafoMatrizIncidencia implements Grafo {
 
         int novaCol = novasColunas - 1;
         if (u == v) {
-            novaMatriz[u][novaCol] = 2; // Laço
+            novaMatriz[u][novaCol] = 2;  // laco
         } else {
-            novaMatriz[u][novaCol] = -1; // Saída
-            novaMatriz[v][novaCol] = 1;  // Chegada
+            novaMatriz[u][novaCol] = -1; // saida
+            novaMatriz[v][novaCol] = 1;  // chegada
         }
 
         this.matrizIncidencia = novaMatriz;
     }
 
+    // Verifica se ha coluna conectando origem e destino
     @Override
     public boolean existeAresta(Vertice origem, Vertice destino) {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -90,6 +90,7 @@ public class GrafoMatrizIncidencia implements Grafo {
         return encontrarColunaDaAresta(origem.id(), destino.id()) != -1;
     }
 
+    // Conta quantas arestas saem deste vertice (marcadas como -1 ou 2)
     @Override
     public int grauDoVertice(Vertice vertice) throws Exception {
         if (!verticeValido(vertice)) {
@@ -115,6 +116,7 @@ public class GrafoMatrizIncidencia implements Grafo {
         return arestas.size();
     }
 
+    // Retorna os vertices de destino para cada coluna onde este vertice e origem
     @Override
     public ArrayList<Vertice> adjacentesDe(Vertice vertice) throws Exception {
         ArrayList<Vertice> adjacentes = new ArrayList<>();
@@ -133,6 +135,7 @@ public class GrafoMatrizIncidencia implements Grafo {
         return adjacentes;
     }
 
+    // Altera o peso da aresta na lista interna de arestas
     @Override
     public void setarPeso(Vertice origem, Vertice destino, double peso) throws Exception {
         if (!verticeValido(origem) || !verticeValido(destino)) {
@@ -144,6 +147,7 @@ public class GrafoMatrizIncidencia implements Grafo {
         }
     }
 
+    // Retorna a aresta cadastrada para a coluna especifica
     @Override
     public ArrayList<Aresta> arestasEntre(Vertice origem, Vertice destino) throws Exception {
         ArrayList<Aresta> resultado = new ArrayList<>();

@@ -9,16 +9,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+// Busca em Profundidade (DFS)
+// Percorre o grafo recursivamente, calculando tempos de descoberta (d) e termino (f),
+// antecessores (pi) e classificando as arestas (arvore, retorno, avanco e cruzamento).
 public class BuscaEmProfundidade {
 
-    // Cores da busca (Cormen)
-    public static final int BRANCO = 0; // não visitado
-    public static final int CINZA = 1;  // na pilha de recursão
+    // Cores da busca (padrao Cormen)
+    public static final int BRANCO = 0; // nao visitado
+    public static final int CINZA = 1;  // em processamento na pilha recursiva
     public static final int PRETO = 2;  // finalizado
 
     private int[] d;              // tempo de descoberta
-    private int[] f;              // tempo de término
-    private Vertice[] pi;         // pai na árvore
+    private int[] f;              // tempo de termino
+    private Vertice[] pi;         // antecessor na arvore de busca
     private int[] cor;
     private int tempo;
 
@@ -27,6 +30,7 @@ public class BuscaEmProfundidade {
     private ArrayList<Aresta> arestasAvanco;
     private ArrayList<Aresta> arestasCruzamento;
 
+    // Inicializa os vetores de controle e executa a DFS comecando pelo vertice indicado
     public Collection<Aresta> executar(Grafo g, Vertice verticeInicial) {
         int n = g.numeroDeVertices();
         cor = new int[n];
@@ -45,14 +49,14 @@ public class BuscaEmProfundidade {
             pi[i] = null;
         }
 
-        // Começa pelo vértice escolhido pelo usuário
+        // Inicia pelo vertice inicial informado pelo usuario
         if (verticeInicial != null && verticeInicial.id() >= 0 && verticeInicial.id() < n) {
             if (cor[verticeInicial.id()] == BRANCO) {
                 visitaDFS(g, verticeInicial);
             }
         }
 
-        // Visita o restante dos vértices para cobrir todo o grafo
+        // Visita os demais vertices para garantir que todos os componentes sejam cobertos
         for (Vertice u : g.vertices()) {
             if (cor[u.id()] == BRANCO) {
                 visitaDFS(g, u);
@@ -62,6 +66,7 @@ public class BuscaEmProfundidade {
         return arestasArvore;
     }
 
+    // Funcao recursiva principal: visita o vertice u, avanca para os vizinhos e classifica as arestas
     private void visitaDFS(Grafo g, Vertice u) {
         tempo++;
         d[u.id()] = tempo;
@@ -71,18 +76,18 @@ public class BuscaEmProfundidade {
             Aresta aresta = obterAresta(g, u, v);
 
             if (cor[v.id()] == BRANCO) {
-                // Aresta de árvore: descobriu um vértice novo
+                // Aresta de arvore: descobre um novo vertice
                 arestasArvore.add(aresta);
                 pi[v.id()] = u;
                 visitaDFS(g, v);
             } else if (cor[v.id()] == CINZA) {
-                // Aresta de retorno: encontrou um ancestral ativo (tem ciclo!)
+                // Aresta de retorno: encontra ancestral ainda cinza na pilha (indica ciclo no digrafo)
                 arestasRetorno.add(aresta);
             } else if (d[u.id()] < d[v.id()]) {
-                // Aresta de avanço: aponta para um descendente já finalizado
+                // Aresta de avanco: aponta para um descendente ja finalizado
                 arestasAvanco.add(aresta);
             } else {
-                // Aresta de cruzamento: aponta para outro ramo da busca
+                // Aresta de cruzamento: conecta ramos diferentes ja finalizados
                 arestasCruzamento.add(aresta);
             }
         }

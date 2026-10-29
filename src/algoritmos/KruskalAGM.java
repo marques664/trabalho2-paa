@@ -10,8 +10,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+// Algoritmo de Kruskal para Arvore Geradora Minima (AGM)
+// Ordena as arestas por peso e usa Union-Find sobre o vetor pai para evitar ciclos.
 public class KruskalAGM {
 
+    // Encontra as V - 1 arestas de menor custo que conectam todos os vertices do grafo
     public Collection<Aresta> executar(Grafo g) {
         if (g == null || g.numeroDeVertices() == 0) {
             return new ArrayList<>();
@@ -20,11 +23,11 @@ public class KruskalAGM {
         int n = g.numeroDeVertices();
         List<Aresta> todasArestas = new ArrayList<>();
 
-        // Coleta as arestas sem laços e sem duplicar nos dois sentidos
+        // Coleta as arestas sem duplicar e ignorando lacos (u == v)
         for (Vertice u : g.vertices()) {
             for (Vertice v : vizinhos(g, u)) {
                 if (u.id() == v.id()) {
-                    continue; // AGM não tem laço
+                    continue; // laco nao entra na AGM
                 }
                 ArrayList<Aresta> arestasEntre = arestas(g, u, v);
                 if (!arestasEntre.isEmpty()) {
@@ -47,13 +50,13 @@ public class KruskalAGM {
             }
         }
 
-        // Ordena as arestas por peso crescente
+        // Ordenacao gulosa das arestas por peso crescente
         todasArestas.sort(Comparator.comparingDouble(Aresta::peso));
 
-        // Union-Find usando vetor de pais
+        // Vetor pai para gerenciar os conjuntos disjuntos (Union-Find)
         int[] pai = new int[n];
         for (int i = 0; i < n; i++) {
-            pai[i] = i; // Cada vértice começa no seu próprio conjunto
+            pai[i] = i; // Cada vertice comeca como sua propria raiz
         }
 
         List<Aresta> agm = new ArrayList<>();
@@ -62,12 +65,12 @@ public class KruskalAGM {
             int raizU = find(pai, a.origem().id());
             int raizV = find(pai, a.destino().id());
 
-            // Se as raízes são diferentes, a aresta não fecha ciclo
+            // Se as raizes forem diferentes, os vertices estao em conjuntos distintos (nao fecha ciclo)
             if (raizU != raizV) {
                 agm.add(a);
-                pai[raizU] = raizV; // união simples dos conjuntos no vetor pai
+                pai[raizU] = raizV; // uniao dos dois conjuntos
                 if (agm.size() == n - 1) {
-                    break; // AGM completa com V - 1 arestas
+                    break; // AGM completa
                 }
             }
         }
@@ -75,7 +78,7 @@ public class KruskalAGM {
         return agm;
     }
 
-    // Procura a raiz do conjunto no vetor pai
+    // Busca a raiz do conjunto no vetor pai
     private int find(int[] pai, int i) {
         while (pai[i] != i) {
             i = pai[i];
@@ -99,6 +102,7 @@ public class KruskalAGM {
         }
     }
 
+    // Calcula a soma dos pesos de todas as arestas selecionadas na AGM
     public double calcularCusto(Collection<Aresta> arestas) {
         if (arestas == null) {
             return 0.0;

@@ -9,10 +9,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// Algoritmo de Kosaraju-Sharir para Componentes Fortemente Conexos (CFC)
+// Executa duas passagens de DFS (no grafo original e no grafo transposto)
+// e gera o Grafo Reduzido (onde cada componente se torna um supervertice).
 public class KosarajuCFC {
 
     private List<List<Vertice>> componentes = new ArrayList<>();
 
+    // Identifica todos os CFCs e retorna a estrutura do Grafo Reduzido
     public Grafo executar(Grafo g) {
         if (g == null || g.numeroDeVertices() == 0) {
             componentes = new ArrayList<>();
@@ -21,7 +25,7 @@ public class KosarajuCFC {
 
         int n = g.numeroDeVertices();
 
-        // Passo 1: DFS no grafo original para guardar a ordem que os vértices finalizam
+        // 1. DFS no grafo original para obter a ordem decrescente de tempo de termino (f)
         boolean[] visitado = new boolean[n];
         List<Vertice> ordemFinalizacao = new ArrayList<>();
 
@@ -31,7 +35,7 @@ public class KosarajuCFC {
             }
         }
 
-        // Passo 2: Criar o grafo transposto (inverter todas as arestas)
+        // 2. Construcao do Grafo Transposto (inverte a orientacao de cada aresta u -> v para v -> u)
         Grafo grafoTransposto = new GrafoListaAdjacencia(n);
         for (Vertice u : g.vertices()) {
             for (Vertice v : vizinhos(g, u)) {
@@ -41,7 +45,7 @@ public class KosarajuCFC {
             }
         }
 
-        // Passo 3: DFS no grafo transposto desempilhando na ordem inversa de término
+        // 3. DFS no grafo transposto percorrendo os vertices na ordem inversa de termino
         boolean[] visitadoGT = new boolean[n];
         componentes = new ArrayList<>();
         int[] componenteDoVertice = new int[n];
@@ -60,7 +64,7 @@ public class KosarajuCFC {
             }
         }
 
-        // Passo 4: Montar o Grafo Reduzido (cada componente vira um supervértice)
+        // 4. Montagem do Grafo Reduzido (conecta supervertices se houver aresta entre componentes distintos)
         Grafo reduzido = new GrafoListaAdjacencia(componentes.size());
 
         for (Vertice u : g.vertices()) {
@@ -68,7 +72,6 @@ public class KosarajuCFC {
                 int cU = componenteDoVertice[u.id()];
                 int cV = componenteDoVertice[v.id()];
 
-                // Se a aresta conecta componentes diferentes, adiciona no reduzido
                 if (cU != cV) {
                     Vertice compOrigem = reduzido.vertices().get(cU);
                     Vertice compDestino = reduzido.vertices().get(cV);
@@ -82,6 +85,7 @@ public class KosarajuCFC {
         return reduzido;
     }
 
+    // DFS auxiliar para empilhar os vertices pela ordem de finalizacao
     private void dfsOrdem(Grafo g, Vertice u, boolean[] visitado, List<Vertice> ordem) {
         visitado[u.id()] = true;
         for (Vertice v : vizinhos(g, u)) {
@@ -92,6 +96,7 @@ public class KosarajuCFC {
         ordem.add(u);
     }
 
+    // DFS auxiliar sobre o grafo transposto para agrupar vertices no componente atual
     private void dfsTransposto(Grafo gt, Vertice u, boolean[] visitado, List<Vertice> componente, Grafo gOriginal) {
         visitado[u.id()] = true;
         componente.add(gOriginal.vertices().get(u.id()));

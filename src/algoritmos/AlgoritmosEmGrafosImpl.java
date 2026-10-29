@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+// Implementacao da interface AlgoritmosEmGrafos
+// Realiza a leitura dos arquivos de entrada e conecta as chamadas aos respectivos algoritmos
 public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
 
     private final FileManager fileManager;
@@ -35,17 +37,18 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
         this.fordFulkerson = new FordFulkersonFluxoMaximo();
     }
 
+    // Le o arquivo texto e monta o grafo na representacao escolhida pelo usuario
     @Override
     public Grafo carregarGrafo(String path, TipoDeRepresentacao t) throws Exception {
         ArrayList<String> linhas = fileManager.stringReader(path);
         if (linhas == null || linhas.isEmpty()) {
-            throw new Exception("Arquivo não encontrado ou vazio: " + path);
+            throw new Exception("Arquivo nao encontrado ou vazio: " + path);
         }
 
-        // Primeira linha tem a quantidade de vértices
+        // Primeira linha contem a quantidade total de vertices
         int numVertices = Integer.parseInt(linhas.get(0).trim());
 
-        // Instancia a estrutura escolhida
+        // Instancia a estrutura correspondente ao tipo selecionado
         Grafo grafo;
         if (t == TipoDeRepresentacao.MATRIZ_DE_ADJACENCIA) {
             grafo = new GrafoMatrizAdjacencia(numVertices);
@@ -55,7 +58,7 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
             grafo = new GrafoListaAdjacencia(numVertices);
         }
 
-        // As linhas seguintes contêm: origem destino-peso; destino-peso; ...
+        // Demais linhas contem: <vertice_origem> <destino>-<peso>; <destino>-<peso>; ...
         for (int i = 1; i < linhas.size(); i++) {
             String linha = linhas.get(i).trim();
             if (linha.isEmpty()) {
@@ -172,7 +175,7 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
     }
 
     // -------------------------------------------------------------------------
-    // ÁRVORE GERADORA MÍNIMA
+    // ARVORE GERADORA MINIMA
     // -------------------------------------------------------------------------
     @Override
     public Collection<Aresta> arvoreGeradoraMinima(Grafo g) {
@@ -185,7 +188,7 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
     }
 
     // -------------------------------------------------------------------------
-    // CAMINHO MÍNIMO
+    // CAMINHO MINIMO
     // -------------------------------------------------------------------------
     @Override
     public ArrayList<Aresta> caminhoMinimo(Grafo g, Vertice origem, Vertice destino) {
@@ -198,7 +201,7 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
     }
 
     // -------------------------------------------------------------------------
-    // FLUXO MÁXIMO
+    // FLUXO MAXIMO
     // -------------------------------------------------------------------------
     @Override
     public double fluxoMaximo(Grafo g) {
