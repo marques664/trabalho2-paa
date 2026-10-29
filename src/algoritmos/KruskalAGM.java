@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-// Algoritmo de Kruskal para Arvore Geradora Minima (AGM)
+// Algoritmo de Kruskal (AGM)
 // Ordena as arestas por peso e usa Union-Find sobre o vetor pai para evitar ciclos.
 public class KruskalAGM {
 
