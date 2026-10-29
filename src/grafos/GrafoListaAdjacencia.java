@@ -16,24 +16,19 @@ public class GrafoListaAdjacencia implements Grafo {
 
     @SuppressWarnings("unchecked")
     public GrafoListaAdjacencia(int numVertices) {
-        if (numVertices < 0) {
-            throw new IllegalArgumentException("O número de vértices não pode ser negativo.");
-        }
-        this.numVertices = numVertices;
+        this.numVertices = Math.max(0, numVertices);
         this.numArestas = 0;
-        this.vertices = new ArrayList<>(numVertices);
-        this.listaAdjacencia = (ArrayList<Aresta>[]) new ArrayList[numVertices];
+        this.vertices = new ArrayList<>(this.numVertices);
+        this.listaAdjacencia = (ArrayList<Aresta>[]) new ArrayList[this.numVertices];
 
-        for (int i = 0; i < numVertices; i++) {
+        for (int i = 0; i < this.numVertices; i++) {
             this.vertices.add(new Vertice(i));
             this.listaAdjacencia[i] = new ArrayList<>();
         }
     }
 
-    private void validarVertice(Vertice v) throws Exception {
-        if (v == null || v.id() < 0 || v.id() >= numVertices) {
-            throw new Exception("Vértice inválido ou fora dos limites do grafo: " + v);
-        }
+    private boolean verticeValido(Vertice v) {
+        return v != null && v.id() >= 0 && v.id() < numVertices;
     }
 
     @Override
@@ -43,11 +38,12 @@ public class GrafoListaAdjacencia implements Grafo {
 
     @Override
     public void adicionarAresta(Vertice origem, Vertice destino, double peso) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return;
+        }
         int u = origem.id();
 
-        // Se já existe, apenas atualiza o peso
+        // Se já existe a aresta, apenas atualiza o peso
         for (Aresta a : listaAdjacencia[u]) {
             if (a.destino().id() == destino.id()) {
                 a.setarPeso(peso);
@@ -61,16 +57,11 @@ public class GrafoListaAdjacencia implements Grafo {
 
     @Override
     public boolean existeAresta(Vertice origem, Vertice destino) {
-        if (origem == null || destino == null) {
+        if (!verticeValido(origem) || !verticeValido(destino)) {
             return false;
         }
-        int u = origem.id();
-        int v = destino.id();
-        if (u < 0 || u >= numVertices || v < 0 || v >= numVertices) {
-            return false;
-        }
-        for (Aresta a : listaAdjacencia[u]) {
-            if (a.destino().id() == v) {
+        for (Aresta a : listaAdjacencia[origem.id()]) {
+            if (a.destino().id() == destino.id()) {
                 return true;
             }
         }
@@ -79,8 +70,9 @@ public class GrafoListaAdjacencia implements Grafo {
 
     @Override
     public int grauDoVertice(Vertice vertice) throws Exception {
-        validarVertice(vertice);
-        // Em dígrafos, o grau de saída é o tamanho da lista de adjacência de u
+        if (!verticeValido(vertice)) {
+            return 0;
+        }
         return listaAdjacencia[vertice.id()].size();
     }
 
@@ -96,8 +88,10 @@ public class GrafoListaAdjacencia implements Grafo {
 
     @Override
     public ArrayList<Vertice> adjacentesDe(Vertice vertice) throws Exception {
-        validarVertice(vertice);
         ArrayList<Vertice> adjacentes = new ArrayList<>();
+        if (!verticeValido(vertice)) {
+            return adjacentes;
+        }
         for (Aresta a : listaAdjacencia[vertice.id()]) {
             adjacentes.add(a.destino());
         }
@@ -106,22 +100,23 @@ public class GrafoListaAdjacencia implements Grafo {
 
     @Override
     public void setarPeso(Vertice origem, Vertice destino, double peso) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return;
+        }
         for (Aresta a : listaAdjacencia[origem.id()]) {
             if (a.destino().id() == destino.id()) {
                 a.setarPeso(peso);
                 return;
             }
         }
-        throw new Exception("Não existe aresta entre " + origem.id() + " e " + destino.id() + ".");
     }
 
     @Override
     public ArrayList<Aresta> arestasEntre(Vertice origem, Vertice destino) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
         ArrayList<Aresta> resultado = new ArrayList<>();
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return resultado;
+        }
         for (Aresta a : listaAdjacencia[origem.id()]) {
             if (a.destino().id() == destino.id()) {
                 resultado.add(a);

@@ -5,13 +5,14 @@ import grafos.Grafo;
 import grafos.Vertice;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
- * Algoritmo de Ford-Fulkerson (implementação de Edmonds-Karp usando BFS)
- * para cálculo do Fluxo Máximo em grafo orientado ponderado por capacidades.
- * Utiliza matriz e vetores para a rede residual e rastreamento de caminhos aumentantes.
+ * Algoritmo de Ford-Fulkerson (Edmonds-Karp via BFS) para Fluxo Máximo.
+ * Utiliza matriz residual e vetores primitivos para rastrear caminhos aumentantes.
  */
 public class FordFulkersonFluxoMaximo {
 
@@ -19,7 +20,6 @@ public class FordFulkersonFluxoMaximo {
         if (g == null || g.numeroDeVertices() < 2) {
             return 0.0;
         }
-        // Por padrão, adota o primeiro vértice (id 0) como fonte e o último como sumidouro
         return executar(g, g.vertices().get(0), g.vertices().get(g.numeroDeVertices() - 1));
     }
 
@@ -36,54 +36,41 @@ public class FordFulkersonFluxoMaximo {
             return 0.0;
         }
 
-        // Matriz de capacidade residual
         double[][] rCap = new double[n][n];
 
-        // Inicializa as capacidades a partir das arestas do grafo original
-        try {
-            for (Vertice u : g.vertices()) {
-                for (Vertice v : g.adjacentesDe(u)) {
-                    if (u.id() != v.id()) { // Ignora laços em rede de fluxo
-                        ArrayList<Aresta> arestasUV = g.arestasEntre(u, v);
-                        if (!arestasUV.isEmpty()) {
-                            rCap[u.id()][v.id()] += arestasUV.get(0).peso();
-                        }
+        for (Vertice u : g.vertices()) {
+            for (Vertice v : vizinhos(g, u)) {
+                if (u.id() != v.id()) {
+                    ArrayList<Aresta> arestasUV = arestas(g, u, v);
+                    if (!arestasUV.isEmpty()) {
+                        rCap[u.id()][v.id()] += arestasUV.get(0).peso();
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         double fluxoMaximo = 0.0;
         int[] pai = new int[n];
 
-        // Enquanto existir um caminho aumentante de s para t na rede residual
         while (bfsCaminhoAumentante(rCap, s, t, pai, n)) {
-            // 1. Encontra a capacidade residual mínima (gargalo) no caminho encontrado
             double gargalo = Double.POSITIVE_INFINITY;
             for (int v = t; v != s; v = pai[v]) {
                 int u = pai[v];
                 gargalo = Math.min(gargalo, rCap[u][v]);
             }
 
-            // 2. Atualiza as capacidades residuais ao longo do caminho
             for (int v = t; v != s; v = pai[v]) {
                 int u = pai[v];
-                rCap[u][v] -= gargalo; // Reduz a capacidade residual direta
-                rCap[v][u] += gargalo; // Aumenta a capacidade residual reversa
+                rCap[u][v] -= gargalo;
+                rCap[v][u] += gargalo;
             }
 
-            // 3. Soma ao fluxo máximo total
             fluxoMaximo += gargalo;
         }
 
         return fluxoMaximo;
     }
 
-    /**
-     * Busca em Largura (BFS) na rede residual para encontrar um caminho de s para t.
-     */
     private boolean bfsCaminhoAumentante(double[][] rCap, int s, int t, int[] pai, int n) {
         boolean[] visitado = new boolean[n];
         for (int i = 0; i < n; i++) {
@@ -99,19 +86,34 @@ public class FordFulkersonFluxoMaximo {
             int u = fila.poll();
 
             for (int v = 0; v < n; v++) {
-                // Se ainda não visitado e há capacidade residual disponível
                 if (!visitado[v] && rCap[u][v] > 1e-9) {
                     fila.add(v);
                     pai[v] = u;
                     visitado[v] = true;
 
                     if (v == t) {
-                        return true; // Encontrou caminho aumentante até o sumidouro
+                        return true;
                     }
                 }
             }
         }
 
         return false;
+    }
+
+    private List<Vertice> vizinhos(Grafo g, Vertice u) {
+        try {
+            return g.adjacentesDe(u);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private ArrayList<Aresta> arestas(Grafo g, Vertice u, Vertice v) {
+        try {
+            return g.arestasEntre(u, v);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 }

@@ -6,6 +6,8 @@ import grafos.Vertice;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Algoritmo de Busca em Profundidade (DFS) com classificação de arestas.
@@ -71,26 +73,20 @@ public class BuscaEmProfundidade {
         d[u.id()] = tempo;
         cor[u.id()] = CINZA;
 
-        try {
-            for (Vertice v : g.adjacentesDe(u)) {
-                Aresta aresta = obterAresta(g, u, v);
+        for (Vertice v : vizinhos(g, u)) {
+            Aresta aresta = obterAresta(g, u, v);
 
-                if (cor[v.id()] == BRANCO) {
-                    arestasArvore.add(aresta);
-                    pi[v.id()] = u;
-                    visitaDFS(g, v);
-                } else if (cor[v.id()] == CINZA) {
-                    arestasRetorno.add(aresta);
-                } else { // PRETO
-                    if (d[u.id()] < d[v.id()]) {
-                        arestasAvanco.add(aresta);
-                    } else {
-                        arestasCruzamento.add(aresta);
-                    }
-                }
+            if (cor[v.id()] == BRANCO) {
+                arestasArvore.add(aresta);
+                pi[v.id()] = u;
+                visitaDFS(g, v);
+            } else if (cor[v.id()] == CINZA) {
+                arestasRetorno.add(aresta);
+            } else if (d[u.id()] < d[v.id()]) {
+                arestasAvanco.add(aresta);
+            } else {
+                arestasCruzamento.add(aresta);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         cor[u.id()] = PRETO;
@@ -98,11 +94,21 @@ public class BuscaEmProfundidade {
         f[u.id()] = tempo;
     }
 
-    private Aresta obterAresta(Grafo g, Vertice u, Vertice v) throws Exception {
-        ArrayList<Aresta> arestas = g.arestasEntre(u, v);
-        if (arestas != null && !arestas.isEmpty()) {
-            return arestas.get(0);
+    private List<Vertice> vizinhos(Grafo g, Vertice u) {
+        try {
+            return g.adjacentesDe(u);
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
+    }
+
+    private Aresta obterAresta(Grafo g, Vertice u, Vertice v) {
+        try {
+            ArrayList<Aresta> arestas = g.arestasEntre(u, v);
+            if (arestas != null && !arestas.isEmpty()) {
+                return arestas.get(0);
+            }
+        } catch (Exception ignored) {}
         return new Aresta(u, v);
     }
 

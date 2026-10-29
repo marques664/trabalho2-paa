@@ -6,6 +6,7 @@ import grafos.Vertice;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -24,34 +25,30 @@ public class KruskalAGM {
         List<Aresta> todasArestas = new ArrayList<>();
 
         // Coleta todas as arestas evitando laços e arestas duplicadas
-        try {
-            for (Vertice u : g.vertices()) {
-                for (Vertice v : g.adjacentesDe(u)) {
-                    if (u.id() == v.id()) {
-                        continue; // AGM não possui laços
-                    }
-                    ArrayList<Aresta> arestasEntre = g.arestasEntre(u, v);
-                    if (!arestasEntre.isEmpty()) {
-                        Aresta a = arestasEntre.get(0);
-                        boolean jaExiste = false;
-                        for (Aresta existente : todasArestas) {
-                            if ((existente.origem().id() == u.id() && existente.destino().id() == v.id()) ||
-                                (existente.origem().id() == v.id() && existente.destino().id() == u.id())) {
-                                jaExiste = true;
-                                if (a.peso() < existente.peso()) {
-                                    existente.setarPeso(a.peso());
-                                }
-                                break;
+        for (Vertice u : g.vertices()) {
+            for (Vertice v : vizinhos(g, u)) {
+                if (u.id() == v.id()) {
+                    continue; // AGM não possui laços
+                }
+                ArrayList<Aresta> arestasEntre = arestas(g, u, v);
+                if (!arestasEntre.isEmpty()) {
+                    Aresta a = arestasEntre.get(0);
+                    boolean jaExiste = false;
+                    for (Aresta existente : todasArestas) {
+                        if ((existente.origem().id() == u.id() && existente.destino().id() == v.id()) ||
+                            (existente.origem().id() == v.id() && existente.destino().id() == u.id())) {
+                            jaExiste = true;
+                            if (a.peso() < existente.peso()) {
+                                existente.setarPeso(a.peso());
                             }
+                            break;
                         }
-                        if (!jaExiste) {
-                            todasArestas.add(new Aresta(u, v, a.peso()));
-                        }
+                    }
+                    if (!jaExiste) {
+                        todasArestas.add(new Aresta(u, v, a.peso()));
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         // Ordena pelo peso em ordem crescente
@@ -88,7 +85,6 @@ public class KruskalAGM {
         while (raiz != pai[raiz]) {
             raiz = pai[raiz];
         }
-        // Compressão de caminho
         int atual = i;
         while (atual != raiz) {
             int prox = pai[atual];
@@ -109,9 +105,25 @@ public class KruskalAGM {
         }
     }
 
-    public double calcularCusto(Collection<Aresta> arestas) throws Exception {
+    private List<Vertice> vizinhos(Grafo g, Vertice u) {
+        try {
+            return g.adjacentesDe(u);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private ArrayList<Aresta> arestas(Grafo g, Vertice u, Vertice v) {
+        try {
+            return g.arestasEntre(u, v);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public double calcularCusto(Collection<Aresta> arestas) {
         if (arestas == null) {
-            throw new Exception("Coleção de arestas nula.");
+            return 0.0;
         }
         double total = 0.0;
         for (Aresta a : arestas) {

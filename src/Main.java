@@ -19,7 +19,7 @@ public class Main {
     private static Grafo grafoAtual = null;
     private static TipoDeRepresentacao tipoAtual = null;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         System.out.println("============================================================");
         System.out.println("   PROJETO E ANÁLISE DE ALGORITMOS - TRABALHO PRÁTICO 2    ");
         System.out.println("                TEORIA DOS GRAFOS EM JAVA                  ");
@@ -74,10 +74,9 @@ public class Main {
     }
 
     private static void carregarGrafoInterativo() {
-        boolean carregado = false;
-        while (!carregado) {
+        while (true) {
             System.out.println("\n--- CARREGAMENTO DO GRAFO ---");
-            System.out.print("Informe o caminho do arquivo (Pressione ENTER para 'docs/Teste.txt'): ");
+            System.out.print("Informe o caminho do arquivo (ENTER para 'docs/Teste.txt'): ");
             String path = scanner.nextLine().trim();
             if (path.isEmpty()) {
                 path = "docs/Teste.txt";
@@ -88,34 +87,24 @@ public class Main {
             System.out.println("  2 - Matriz de Incidência");
             System.out.println("  3 - Lista de Adjacência");
             System.out.print("Opção (1-3): ");
-            String escolhaEstrutura = scanner.nextLine().trim();
+            String escolha = scanner.nextLine().trim();
 
-            TipoDeRepresentacao tipo;
-            switch (escolhaEstrutura) {
-                case "1":
-                    tipo = TipoDeRepresentacao.MATRIZ_DE_ADJACENCIA;
-                    break;
-                case "2":
-                    tipo = TipoDeRepresentacao.MATRIZ_DE_INCIDENCIA;
-                    break;
-                case "3":
-                default:
-                    tipo = TipoDeRepresentacao.LISTA_DE_ADJACENCIA;
-                    break;
+            TipoDeRepresentacao tipo = TipoDeRepresentacao.LISTA_DE_ADJACENCIA;
+            if ("1".equals(escolha)) {
+                tipo = TipoDeRepresentacao.MATRIZ_DE_ADJACENCIA;
+            } else if ("2".equals(escolha)) {
+                tipo = TipoDeRepresentacao.MATRIZ_DE_INCIDENCIA;
             }
 
             try {
                 grafoAtual = algoritmos.carregarGrafo(path, tipo);
                 tipoAtual = tipo;
-                carregado = true;
                 System.out.println("\n[+] Grafo carregado com sucesso!");
-                System.out.println("    Arquivo: " + path);
-                System.out.println("    Estrutura: " + tipo);
-                System.out.println("    Total de Vértices: " + grafoAtual.numeroDeVertices());
-                System.out.println("    Total de Arestas:  " + grafoAtual.numeroDeArestas());
+                System.out.println("    Arquivo: " + path + " | Estrutura: " + tipo);
+                System.out.println("    Vértices: " + grafoAtual.numeroDeVertices() + " | Arestas: " + grafoAtual.numeroDeArestas());
+                return;
             } catch (Exception e) {
-                System.err.println("\n[-] Erro ao carregar o grafo: " + e.getMessage());
-                System.out.println("Tente novamente informando um arquivo válido.");
+                System.out.println("\n[-] Erro ao carregar arquivo: " + e.getMessage());
             }
         }
     }
@@ -143,7 +132,7 @@ public class Main {
         int inicioId = solicitarVertice("Informe o vértice inicial da busca (ex: 0): ", 0);
         Vertice vInicio = grafoAtual.vertices().get(inicioId);
 
-        Collection<Aresta> arvore = algoritmos.buscaEmProfundidade(grafoAtual, vInicio);
+        algoritmos.buscaEmProfundidade(grafoAtual, vInicio);
 
         System.out.println("\nTempos de Descoberta (d), Finalização (f) e Antecessor (π):");
         int[] d = algoritmos.getD_DFS();
@@ -187,15 +176,15 @@ public class Main {
         System.out.println("\n--- [3] DETECÇÃO DE CICLOS ---");
         boolean temCiclo = algoritmos.existeCiclo(grafoAtual);
         if (temCiclo) {
-            System.out.println("Resultado: VERDADEIRO (O grafo orientado contém pelo menos um ciclo).");
+            System.out.println("Resultado: VERDADEIRO (O grafo orientado contém ciclo).");
             System.out.println("Arestas de retorno identificadas que fecham ciclos:");
             System.out.println("  " + formatarArestas(algoritmos.arestasDeRetorno(grafoAtual)));
         } else {
-            System.out.println("Resultado: FALSO (O grafo é um Grafo Acíclico Dirigido - DAG).");
+            System.out.println("Resultado: FALSO (O grafo é acíclico - DAG).");
         }
     }
 
-    private static void executarCFC() {
+    private static void executarCFC() throws Exception {
         System.out.println("\n--- [4] COMPONENTES FORTEMENTE CONEXOS (KOSARAJU) ---");
         Grafo reduzido = algoritmos.componentesFortementeConexos(grafoAtual);
         List<List<Vertice>> componentes = algoritmos.getUltimosComponentes();
@@ -212,39 +201,32 @@ public class Main {
         System.out.println("\nGrafo Reduzido (Grafo de Condensação):");
         System.out.println("  Número de supervértices: " + reduzido.numeroDeVertices());
         System.out.println("  Número de arestas entre componentes: " + reduzido.numeroDeArestas());
-        try {
-            for (Vertice u : reduzido.vertices()) {
-                ArrayList<Vertice> vizinhos = reduzido.adjacentesDe(u);
-                if (!vizinhos.isEmpty()) {
-                    System.out.print("  C" + u.id() + " aponta para -> ");
-                    for (Vertice v : vizinhos) {
-                        System.out.print("C" + v.id() + " ");
-                    }
-                    System.out.println();
+
+        for (Vertice u : reduzido.vertices()) {
+            ArrayList<Vertice> vizinhos = reduzido.adjacentesDe(u);
+            if (!vizinhos.isEmpty()) {
+                System.out.print("  C" + u.id() + " aponta para -> ");
+                for (Vertice v : vizinhos) {
+                    System.out.print("C" + v.id() + " ");
                 }
+                System.out.println();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    private static void executarAGM() {
+    private static void executarAGM() throws Exception {
         System.out.println("\n--- [5] ÁRVORE GERADORA MÍNIMA (KRUSKAL) ---");
-        try {
-            Collection<Aresta> agm = algoritmos.arvoreGeradoraMinima(grafoAtual);
-            double custo = algoritmos.custoDaArvoreGeradora(grafoAtual, agm);
+        Collection<Aresta> agm = algoritmos.arvoreGeradoraMinima(grafoAtual);
+        double custo = algoritmos.custoDaArvoreGeradora(grafoAtual, agm);
 
-            System.out.println("Arestas selecionadas para a AGM:");
-            for (Aresta a : agm) {
-                System.out.printf("  (%d - %d) com peso %.2f\n", a.origem().id(), a.destino().id(), a.peso());
-            }
-            System.out.printf("\nCusto Total da Árvore Geradora Mínima: %.2f\n", custo);
-        } catch (Exception e) {
-            System.err.println("Erro ao calcular AGM: " + e.getMessage());
+        System.out.println("Arestas selecionadas para a AGM:");
+        for (Aresta a : agm) {
+            System.out.printf("  (%d - %d) com peso %.2f\n", a.origem().id(), a.destino().id(), a.peso());
         }
+        System.out.printf("\nCusto Total da Árvore Geradora Mínima: %.2f\n", custo);
     }
 
-    private static void executarCaminhoMinimo() {
+    private static void executarCaminhoMinimo() throws Exception {
         System.out.println("\n--- [6] CAMINHO MÍNIMO (DIJKSTRA) ---");
         int s = solicitarVertice("Informe o vértice de origem (s): ", 0);
         int t = solicitarVertice("Informe o vértice de destino (t): ", grafoAtual.numeroDeVertices() - 1);
@@ -252,27 +234,23 @@ public class Main {
         Vertice vOrigem = grafoAtual.vertices().get(s);
         Vertice vDestino = grafoAtual.vertices().get(t);
 
-        try {
-            ArrayList<Aresta> caminho = algoritmos.caminhoMinimo(grafoAtual, vOrigem, vDestino);
-            double custo = algoritmos.custoDoCaminhoMinimo(grafoAtual, caminho, vOrigem, vDestino);
+        ArrayList<Aresta> caminho = algoritmos.caminhoMinimo(grafoAtual, vOrigem, vDestino);
+        double custo = algoritmos.custoDoCaminhoMinimo(grafoAtual, caminho, vOrigem, vDestino);
 
-            if (s == t) {
-                System.out.println("Origem e destino são o mesmo vértice. Custo total: 0.0");
-                return;
-            }
+        if (s == t) {
+            System.out.println("Origem e destino são o mesmo vértice. Custo total: 0.0");
+            return;
+        }
 
-            if (caminho.isEmpty()) {
-                System.out.println("Não foi encontrado nenhum caminho entre " + s + " e " + t + ".");
-            } else {
-                System.out.println("Arestas do caminho mínimo em ordem:");
-                for (int i = 0; i < caminho.size(); i++) {
-                    Aresta a = caminho.get(i);
-                    System.out.printf("  Salto %d: (%d -> %d) [peso: %.2f]\n", i + 1, a.origem().id(), a.destino().id(), a.peso());
-                }
-                System.out.printf("Custo Total do Caminho Mínimo: %.2f\n", custo);
+        if (caminho.isEmpty()) {
+            System.out.println("Não foi encontrado nenhum caminho entre " + s + " e " + t + ".");
+        } else {
+            System.out.println("Arestas do caminho mínimo em ordem:");
+            for (int i = 0; i < caminho.size(); i++) {
+                Aresta a = caminho.get(i);
+                System.out.printf("  Salto %d: (%d -> %d) [peso: %.2f]\n", i + 1, a.origem().id(), a.destino().id(), a.peso());
             }
-        } catch (Exception e) {
-            System.err.println("Erro ao calcular caminho mínimo: " + e.getMessage());
+            System.out.printf("Custo Total do Caminho Mínimo: %.2f\n", custo);
         }
     }
 
@@ -302,10 +280,8 @@ public class Main {
                 if (val >= 0 && val <= max) {
                     return val;
                 }
-                System.out.println("[!] Vértice inválido. Deve estar entre 0 e " + max + ".");
-            } catch (NumberFormatException e) {
-                System.out.println("[!] Digite um número inteiro válido.");
-            }
+            } catch (NumberFormatException ignored) {}
+            System.out.println("[!] Vértice inválido. Digite um número entre 0 e " + max + ".");
         }
     }
 

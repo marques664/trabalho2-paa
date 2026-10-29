@@ -15,24 +15,19 @@ public class GrafoMatrizAdjacencia implements Grafo {
     private final double[][] matrizPesos;
 
     public GrafoMatrizAdjacencia(int numVertices) {
-        if (numVertices < 0) {
-            throw new IllegalArgumentException("O número de vértices não pode ser negativo.");
-        }
-        this.numVertices = numVertices;
+        this.numVertices = Math.max(0, numVertices);
         this.numArestas = 0;
-        this.vertices = new ArrayList<>(numVertices);
-        this.matrizAdjacencia = new boolean[numVertices][numVertices];
-        this.matrizPesos = new double[numVertices][numVertices];
+        this.vertices = new ArrayList<>(this.numVertices);
+        this.matrizAdjacencia = new boolean[this.numVertices][this.numVertices];
+        this.matrizPesos = new double[this.numVertices][this.numVertices];
 
-        for (int i = 0; i < numVertices; i++) {
+        for (int i = 0; i < this.numVertices; i++) {
             this.vertices.add(new Vertice(i));
         }
     }
 
-    private void validarVertice(Vertice v) throws Exception {
-        if (v == null || v.id() < 0 || v.id() >= numVertices) {
-            throw new Exception("Vértice inválido ou fora dos limites do grafo: " + v);
-        }
+    private boolean verticeValido(Vertice v) {
+        return v != null && v.id() >= 0 && v.id() < numVertices;
     }
 
     @Override
@@ -42,8 +37,9 @@ public class GrafoMatrizAdjacencia implements Grafo {
 
     @Override
     public void adicionarAresta(Vertice origem, Vertice destino, double peso) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return;
+        }
         int u = origem.id();
         int v = destino.id();
 
@@ -56,21 +52,17 @@ public class GrafoMatrizAdjacencia implements Grafo {
 
     @Override
     public boolean existeAresta(Vertice origem, Vertice destino) {
-        if (origem == null || destino == null) {
+        if (!verticeValido(origem) || !verticeValido(destino)) {
             return false;
         }
-        int u = origem.id();
-        int v = destino.id();
-        if (u < 0 || u >= numVertices || v < 0 || v >= numVertices) {
-            return false;
-        }
-        return matrizAdjacencia[u][v];
+        return matrizAdjacencia[origem.id()][destino.id()];
     }
 
     @Override
     public int grauDoVertice(Vertice vertice) throws Exception {
-        validarVertice(vertice);
-        // Em dígrafos, o grau de saída (número de arestas que partem do vértice)
+        if (!verticeValido(vertice)) {
+            return 0;
+        }
         int grau = 0;
         int u = vertice.id();
         for (int v = 0; v < numVertices; v++) {
@@ -93,8 +85,10 @@ public class GrafoMatrizAdjacencia implements Grafo {
 
     @Override
     public ArrayList<Vertice> adjacentesDe(Vertice vertice) throws Exception {
-        validarVertice(vertice);
         ArrayList<Vertice> adjacentes = new ArrayList<>();
+        if (!verticeValido(vertice)) {
+            return adjacentes;
+        }
         int u = vertice.id();
         for (int v = 0; v < numVertices; v++) {
             if (matrizAdjacencia[u][v]) {
@@ -106,21 +100,18 @@ public class GrafoMatrizAdjacencia implements Grafo {
 
     @Override
     public void setarPeso(Vertice origem, Vertice destino, double peso) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
-        int u = origem.id();
-        int v = destino.id();
-        if (!matrizAdjacencia[u][v]) {
-            throw new Exception("Não existe aresta entre " + origem.id() + " e " + destino.id() + ".");
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return;
         }
-        matrizPesos[u][v] = peso;
+        matrizPesos[origem.id()][destino.id()] = peso;
     }
 
     @Override
     public ArrayList<Aresta> arestasEntre(Vertice origem, Vertice destino) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
         ArrayList<Aresta> arestas = new ArrayList<>();
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return arestas;
+        }
         int u = origem.id();
         int v = destino.id();
         if (matrizAdjacencia[u][v]) {

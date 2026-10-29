@@ -6,7 +6,9 @@ import grafos.Vertice;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -54,18 +56,14 @@ public class BuscaEmLargura {
 
         while (!fila.isEmpty()) {
             Vertice u = fila.poll();
-            try {
-                for (Vertice v : g.adjacentesDe(u)) {
-                    if (cor[v.id()] == BRANCO) {
-                        cor[v.id()] = CINZA;
-                        d[v.id()] = d[u.id()] + 1;
-                        pi[v.id()] = u;
-                        arestasArvore.add(obterAresta(g, u, v));
-                        fila.add(v);
-                    }
+            for (Vertice v : vizinhos(g, u)) {
+                if (cor[v.id()] == BRANCO) {
+                    cor[v.id()] = CINZA;
+                    d[v.id()] = d[u.id()] + 1;
+                    pi[v.id()] = u;
+                    arestasArvore.add(obterAresta(g, u, v));
+                    fila.add(v);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
             cor[u.id()] = PRETO;
         }
@@ -73,11 +71,21 @@ public class BuscaEmLargura {
         return arestasArvore;
     }
 
-    private Aresta obterAresta(Grafo g, Vertice u, Vertice v) throws Exception {
-        ArrayList<Aresta> arestas = g.arestasEntre(u, v);
-        if (arestas != null && !arestas.isEmpty()) {
-            return arestas.get(0);
+    private List<Vertice> vizinhos(Grafo g, Vertice u) {
+        try {
+            return g.adjacentesDe(u);
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
+    }
+
+    private Aresta obterAresta(Grafo g, Vertice u, Vertice v) {
+        try {
+            ArrayList<Aresta> arestas = g.arestasEntre(u, v);
+            if (arestas != null && !arestas.isEmpty()) {
+                return arestas.get(0);
+            }
+        } catch (Exception ignored) {}
         return new Aresta(u, v);
     }
 

@@ -16,23 +16,18 @@ public class GrafoMatrizIncidencia implements Grafo {
     private int[][] matrizIncidencia; // linhas: vértices, colunas: arestas
 
     public GrafoMatrizIncidencia(int numVertices) {
-        if (numVertices < 0) {
-            throw new IllegalArgumentException("O número de vértices não pode ser negativo.");
-        }
-        this.numVertices = numVertices;
-        this.vertices = new ArrayList<>(numVertices);
+        this.numVertices = Math.max(0, numVertices);
+        this.vertices = new ArrayList<>(this.numVertices);
         this.arestas = new ArrayList<>();
-        this.matrizIncidencia = new int[numVertices][0];
+        this.matrizIncidencia = new int[this.numVertices][0];
 
-        for (int i = 0; i < numVertices; i++) {
+        for (int i = 0; i < this.numVertices; i++) {
             this.vertices.add(new Vertice(i));
         }
     }
 
-    private void validarVertice(Vertice v) throws Exception {
-        if (v == null || v.id() < 0 || v.id() >= numVertices) {
-            throw new Exception("Vértice inválido ou fora dos limites do grafo: " + v);
-        }
+    private boolean verticeValido(Vertice v) {
+        return v != null && v.id() >= 0 && v.id() < numVertices;
     }
 
     private int encontrarColunaDaAresta(int u, int v) {
@@ -52,8 +47,9 @@ public class GrafoMatrizIncidencia implements Grafo {
 
     @Override
     public void adicionarAresta(Vertice origem, Vertice destino, double peso) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return;
+        }
         int u = origem.id();
         int v = destino.id();
 
@@ -69,20 +65,18 @@ public class GrafoMatrizIncidencia implements Grafo {
         int novasColunas = arestas.size();
         int[][] novaMatriz = new int[numVertices][novasColunas];
 
-        // Copia dados anteriores
         for (int i = 0; i < numVertices; i++) {
             for (int j = 0; j < novasColunas - 1; j++) {
                 novaMatriz[i][j] = matrizIncidencia[i][j];
             }
         }
 
-        // Preenche a nova coluna da aresta
         int novaCol = novasColunas - 1;
         if (u == v) {
             novaMatriz[u][novaCol] = 2; // Laço
         } else {
-            novaMatriz[u][novaCol] = -1; // Origem (saída)
-            novaMatriz[v][novaCol] = 1;  // Destino (chegada)
+            novaMatriz[u][novaCol] = -1; // Saída
+            novaMatriz[v][novaCol] = 1;  // Chegada
         }
 
         this.matrizIncidencia = novaMatriz;
@@ -90,21 +84,17 @@ public class GrafoMatrizIncidencia implements Grafo {
 
     @Override
     public boolean existeAresta(Vertice origem, Vertice destino) {
-        if (origem == null || destino == null) {
+        if (!verticeValido(origem) || !verticeValido(destino)) {
             return false;
         }
-        int u = origem.id();
-        int v = destino.id();
-        if (u < 0 || u >= numVertices || v < 0 || v >= numVertices) {
-            return false;
-        }
-        return encontrarColunaDaAresta(u, v) != -1;
+        return encontrarColunaDaAresta(origem.id(), destino.id()) != -1;
     }
 
     @Override
     public int grauDoVertice(Vertice vertice) throws Exception {
-        validarVertice(vertice);
-        // Em dígrafos, o grau de saída é a quantidade de arestas que partem de vertice
+        if (!verticeValido(vertice)) {
+            return 0;
+        }
         int u = vertice.id();
         int grau = 0;
         for (int j = 0; j < arestas.size(); j++) {
@@ -127,16 +117,16 @@ public class GrafoMatrizIncidencia implements Grafo {
 
     @Override
     public ArrayList<Vertice> adjacentesDe(Vertice vertice) throws Exception {
-        validarVertice(vertice);
-        int u = vertice.id();
         ArrayList<Vertice> adjacentes = new ArrayList<>();
+        if (!verticeValido(vertice)) {
+            return adjacentes;
+        }
+        int u = vertice.id();
 
         for (int j = 0; j < arestas.size(); j++) {
             if (matrizIncidencia[u][j] == 2) {
-                // Laço: o próprio vértice é adjacente
                 adjacentes.add(vertices.get(u));
             } else if (matrizIncidencia[u][j] == -1) {
-                // Encontra qual linha possui +1 nesta coluna j
                 for (int dest = 0; dest < numVertices; dest++) {
                     if (matrizIncidencia[dest][j] == 1) {
                         adjacentes.add(vertices.get(dest));
@@ -150,20 +140,21 @@ public class GrafoMatrizIncidencia implements Grafo {
 
     @Override
     public void setarPeso(Vertice origem, Vertice destino, double peso) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
-        int col = encontrarColunaDaAresta(origem.id(), destino.id());
-        if (col == -1) {
-            throw new Exception("Não existe aresta entre " + origem.id() + " e " + destino.id() + ".");
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return;
         }
-        arestas.get(col).setarPeso(peso);
+        int col = encontrarColunaDaAresta(origem.id(), destino.id());
+        if (col != -1) {
+            arestas.get(col).setarPeso(peso);
+        }
     }
 
     @Override
     public ArrayList<Aresta> arestasEntre(Vertice origem, Vertice destino) throws Exception {
-        validarVertice(origem);
-        validarVertice(destino);
         ArrayList<Aresta> resultado = new ArrayList<>();
+        if (!verticeValido(origem) || !verticeValido(destino)) {
+            return resultado;
+        }
         int col = encontrarColunaDaAresta(origem.id(), destino.id());
         if (col != -1) {
             resultado.add(arestas.get(col));
