@@ -130,7 +130,7 @@ O projeto adota uma arquitetura orientada a objetos modularizada em dois pacotes
     <code>BuscaEmProfundidade</code>, <code>BuscaEmLargura</code>, <code>DeteccaoCiclos</code>, <code>KosarajuCFC</code>, <code>KruskalAGM</code>, <code>DijkstraCaminhoMinimo</code> e <code>FordFulkersonFluxoMaximo</code>, unificadas pela classe fachada <code>AlgoritmosEmGrafosImpl</code>.
   </li>
   <li><code>src/Main.java</code>: Menu interativo de console para testes e execução prática.</li>
-  <li><code>tests/</code>: Casos de teste automatizados e testes de escalabilidade/performance.</li>
+  <li><code>tests/</code>: Instâncias em <code>.txt</code> para piores casos (DAG acíclico, múltiplos CFCs, desconexo, rede de fluxo, grafo denso) e classe de benchmark <code>TestePerformance.java</code>.</li>
 </ul>
 
 <h2>2. O Papel dos Vetores no Projeto</h2>
@@ -341,9 +341,8 @@ javac -encoding UTF-8 -sourcepath "src;tests" -d bin $files</pre>
 <p><strong>Execução do Menu Interativo:</strong></p>
 <pre>java -cp bin Main</pre>
 
-<p><strong>Execução das Suítes de Testes Automatizadas e Performance:</strong></p>
-<pre>java -ea -cp bin tests.SuiteDeTestesGerais
-java -cp bin tests.TestePerformance</pre>
+<p><strong>Execução dos Testes de Performance:</strong></p>
+<pre>java -cp bin tests.TestePerformance</pre>
 
 </body>
 </html>

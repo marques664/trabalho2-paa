@@ -14,10 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Implementação da interface AlgoritmosEmGrafos.
- * Atua como fachada, delegando as operações para as classes especialistas de algoritmos.
- */
 public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
 
     private final FileManager fileManager;
@@ -43,79 +39,65 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
     public Grafo carregarGrafo(String path, TipoDeRepresentacao t) throws Exception {
         ArrayList<String> linhas = fileManager.stringReader(path);
         if (linhas == null || linhas.isEmpty()) {
-            throw new Exception("Não foi possível ler o arquivo ou arquivo vazio: " + path);
+            throw new Exception("Arquivo não encontrado ou vazio: " + path);
         }
 
-        String primeiraLinha = linhas.get(0).trim();
-        int numVertices;
-        try {
-            numVertices = Integer.parseInt(primeiraLinha);
-        } catch (NumberFormatException e) {
-            throw new Exception("Formato inválido na primeira linha (esperado número de vértices): " + primeiraLinha);
-        }
+        // Primeira linha tem a quantidade de vértices
+        int numVertices = Integer.parseInt(linhas.get(0).trim());
 
+        // Instancia a estrutura escolhida
         Grafo grafo;
-        switch (t) {
-            case MATRIZ_DE_ADJACENCIA:
-                grafo = new GrafoMatrizAdjacencia(numVertices);
-                break;
-            case MATRIZ_DE_INCIDENCIA:
-                grafo = new GrafoMatrizIncidencia(numVertices);
-                break;
-            case LISTA_DE_ADJACENCIA:
-                grafo = new GrafoListaAdjacencia(numVertices);
-                break;
-            default:
-                throw new IllegalArgumentException("Tipo de representação desconhecido: " + t);
+        if (t == TipoDeRepresentacao.MATRIZ_DE_ADJACENCIA) {
+            grafo = new GrafoMatrizAdjacencia(numVertices);
+        } else if (t == TipoDeRepresentacao.MATRIZ_DE_INCIDENCIA) {
+            grafo = new GrafoMatrizIncidencia(numVertices);
+        } else {
+            grafo = new GrafoListaAdjacencia(numVertices);
         }
 
+        // As linhas seguintes contêm: origem destino-peso; destino-peso; ...
         for (int i = 1; i < linhas.size(); i++) {
             String linha = linhas.get(i).trim();
             if (linha.isEmpty()) {
                 continue;
             }
 
-            int indexPrimeiroEspaco = linha.indexOf(' ');
-            if (indexPrimeiroEspaco == -1) {
+            int primeiroEspaco = linha.indexOf(' ');
+            if (primeiroEspaco == -1) {
                 continue;
             }
 
-            int origemId = Integer.parseInt(linha.substring(0, indexPrimeiroEspaco).trim());
-            String resto = linha.substring(indexPrimeiroEspaco + 1).trim();
+            int origemId = Integer.parseInt(linha.substring(0, primeiroEspaco).trim());
+            String resto = linha.substring(primeiroEspaco + 1).trim();
 
-            String[] itens = resto.split(";");
-            for (String item : itens) {
-                String arestaStr = item.trim();
-                if (arestaStr.isEmpty()) {
+            String[] arestasStr = resto.split(";");
+            for (String item : arestasStr) {
+                String arestaTexto = item.trim();
+                if (arestaTexto.isEmpty()) {
                     continue;
                 }
 
-                int dashIndex = arestaStr.indexOf('-');
-                if (dashIndex == -1) {
-                    throw new Exception("Formato de aresta inválido (esperado destino-peso): " + arestaStr);
+                int dash = arestaTexto.indexOf('-');
+                if (dash != -1) {
+                    int destinoId = Integer.parseInt(arestaTexto.substring(0, dash).trim());
+                    double peso = Double.parseDouble(arestaTexto.substring(dash + 1).trim());
+
+                    Vertice u = grafo.vertices().get(origemId);
+                    Vertice v = grafo.vertices().get(destinoId);
+                    grafo.adicionarAresta(u, v, peso);
                 }
-
-                int destinoId = Integer.parseInt(arestaStr.substring(0, dashIndex).trim());
-                double peso = Double.parseDouble(arestaStr.substring(dashIndex + 1).trim());
-
-                Vertice u = grafo.vertices().get(origemId);
-                Vertice v = grafo.vertices().get(destinoId);
-                grafo.adicionarAresta(u, v, peso);
             }
         }
 
         return grafo;
     }
 
-    // =========================================================================
-    // DFS (BUSCA EM PROFUNDIDADE)
-    // =========================================================================
-
+    // -------------------------------------------------------------------------
+    // DFS
+    // -------------------------------------------------------------------------
     @Override
     public Collection<Aresta> buscaEmProfundidade(Grafo g) {
-        if (g == null || g.numeroDeVertices() == 0) {
-            return new ArrayList<>();
-        }
+        if (g == null || g.numeroDeVertices() == 0) return new ArrayList<>();
         return buscaEmProfundidade(g, g.vertices().get(0));
     }
 
@@ -126,33 +108,25 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
 
     @Override
     public Collection<Aresta> arestasDeArvore(Grafo g) {
-        if (dfsAtual == null) {
-            buscaEmProfundidade(g);
-        }
+        if (dfsAtual == null) buscaEmProfundidade(g);
         return dfsAtual.arestasDeArvore();
     }
 
     @Override
     public Collection<Aresta> arestasDeRetorno(Grafo g) {
-        if (dfsAtual == null) {
-            buscaEmProfundidade(g);
-        }
+        if (dfsAtual == null) buscaEmProfundidade(g);
         return dfsAtual.arestasDeRetorno();
     }
 
     @Override
     public Collection<Aresta> arestasDeAvanco(Grafo g) {
-        if (dfsAtual == null) {
-            buscaEmProfundidade(g);
-        }
+        if (dfsAtual == null) buscaEmProfundidade(g);
         return dfsAtual.arestasDeAvanco();
     }
 
     @Override
     public Collection<Aresta> arestasDeCruzamento(Grafo g) {
-        if (dfsAtual == null) {
-            buscaEmProfundidade(g);
-        }
+        if (dfsAtual == null) buscaEmProfundidade(g);
         return dfsAtual.arestasDeCruzamento();
     }
 
@@ -160,15 +134,12 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
     public int[] getF_DFS() { return dfsAtual != null ? dfsAtual.getF() : null; }
     public Vertice[] getPi_DFS() { return dfsAtual != null ? dfsAtual.getPi() : null; }
 
-    // =========================================================================
-    // BFS (BUSCA EM LARGURA) E CICLOS
-    // =========================================================================
-
+    // -------------------------------------------------------------------------
+    // BFS
+    // -------------------------------------------------------------------------
     @Override
     public Collection<Aresta> buscaEmLargura(Grafo g) {
-        if (g == null || g.numeroDeVertices() == 0) {
-            return new ArrayList<>();
-        }
+        if (g == null || g.numeroDeVertices() == 0) return new ArrayList<>();
         return buscaEmLargura(g, g.vertices().get(0));
     }
 
@@ -180,15 +151,17 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
     public int[] getD_BFS() { return bfsAtual != null ? bfsAtual.getD() : null; }
     public Vertice[] getPi_BFS() { return bfsAtual != null ? bfsAtual.getPi() : null; }
 
+    // -------------------------------------------------------------------------
+    // CICLOS
+    // -------------------------------------------------------------------------
     @Override
     public boolean existeCiclo(Grafo g) {
         return cicloDetector.existeCiclo(g);
     }
 
-    // =========================================================================
-    // COMPONENTES FORTEMENTE CONEXOS (KOSARAJU)
-    // =========================================================================
-
+    // -------------------------------------------------------------------------
+    // COMPONENTES FORTEMENTE CONEXOS
+    // -------------------------------------------------------------------------
     @Override
     public Grafo componentesFortementeConexos(Grafo g) {
         return kosaraju.executar(g);
@@ -198,10 +171,9 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
         return kosaraju.getComponentes();
     }
 
-    // =========================================================================
-    // ÁRVORE GERADORA MÍNIMA (KRUSKAL)
-    // =========================================================================
-
+    // -------------------------------------------------------------------------
+    // ÁRVORE GERADORA MÍNIMA
+    // -------------------------------------------------------------------------
     @Override
     public Collection<Aresta> arvoreGeradoraMinima(Grafo g) {
         return kruskal.executar(g);
@@ -212,10 +184,9 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
         return kruskal.calcularCusto(arestas);
     }
 
-    // =========================================================================
-    // ETAPA 7: CAMINHO MÍNIMO (DIJKSTRA)
-    // =========================================================================
-
+    // -------------------------------------------------------------------------
+    // CAMINHO MÍNIMO
+    // -------------------------------------------------------------------------
     @Override
     public ArrayList<Aresta> caminhoMinimo(Grafo g, Vertice origem, Vertice destino) {
         return dijkstra.executar(g, origem, destino);
@@ -226,10 +197,9 @@ public class AlgoritmosEmGrafosImpl implements AlgoritmosEmGrafos {
         return dijkstra.calcularCusto(g, arestas, origem, destino);
     }
 
-    // =========================================================================
-    // ETAPA 8: FLUXO MÁXIMO (FORD-FULKERSON)
-    // =========================================================================
-
+    // -------------------------------------------------------------------------
+    // FLUXO MÁXIMO
+    // -------------------------------------------------------------------------
     @Override
     public double fluxoMaximo(Grafo g) {
         return fordFulkerson.executar(g);

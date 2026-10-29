@@ -23,7 +23,7 @@ O projeto foi organizado de forma modular em dois pacotes principais, separando 
   * `FordFulkersonFluxoMaximo`: Fluxo máximo em rede residual (Edmonds-Karp).
   * `AlgoritmosEmGrafosImpl`: Fachada (*Facade*) que implementa `AlgoritmosEmGrafos`.
 * **`src/Main.java`:** Menu interativo de terminal para carregar grafos e rodar os algoritmos.
-* **`tests/`:** Casos de teste estruturados (DAGs, múltiplos CFCs, desconexos, redes de fluxo) e testes de performance.
+* **`tests/`:** Instâncias de teste em `.txt` com casos de borda e piores casos (`01_dag_aciclico.txt`, `02_multiplos_cfc.txt`, `03_desconexo.txt`, `04_rede_fluxo.txt`, `05_grafo_denso.txt`) e a classe de benchmark [TestePerformance.java](file:///C:/faculdade/PAA/Trabalho2/tests/TestePerformance.java).
 
 ---
 
@@ -96,8 +96,7 @@ javac -encoding UTF-8 -sourcepath "src;tests" -d bin $files
 java -cp bin Main
 ```
 
-**Execução das Suítes de Testes:**
+**Execução dos Testes de Performance:**
 ```powershell
-java -ea -cp bin tests.SuiteDeTestesGerais
 java -cp bin tests.TestePerformance
 ```

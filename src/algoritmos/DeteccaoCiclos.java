@@ -2,12 +2,9 @@ package algoritmos;
 
 import grafos.Grafo;
 
-/**
- * Algoritmo para detecção de ciclo em grafo orientado.
- * Baseia-se na identificação de arestas de retorno na DFS (Cormen).
- */
 public class DeteccaoCiclos {
 
+    // Um dígrafo tem ciclo se e somente se a DFS encontrar pelo menos uma aresta de retorno
     public boolean existeCiclo(Grafo g) {
         if (g == null || g.numeroDeVertices() == 0) {
             return false;

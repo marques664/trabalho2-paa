@@ -10,10 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Algoritmo de Kruskal para Árvore Geradora Mínima (AGM).
- * Utiliza conjuntos disjuntos (Union-Find) com arrays primitivos (pai e rank).
- */
 public class KruskalAGM {
 
     public Collection<Aresta> executar(Grafo g) {
@@ -24,22 +20,22 @@ public class KruskalAGM {
         int n = g.numeroDeVertices();
         List<Aresta> todasArestas = new ArrayList<>();
 
-        // Coleta todas as arestas evitando laços e arestas duplicadas
+        // Coleta as arestas sem laços e sem duplicar nos dois sentidos
         for (Vertice u : g.vertices()) {
             for (Vertice v : vizinhos(g, u)) {
                 if (u.id() == v.id()) {
-                    continue; // AGM não possui laços
+                    continue; // AGM não tem laço
                 }
                 ArrayList<Aresta> arestasEntre = arestas(g, u, v);
                 if (!arestasEntre.isEmpty()) {
                     Aresta a = arestasEntre.get(0);
                     boolean jaExiste = false;
-                    for (Aresta existente : todasArestas) {
-                        if ((existente.origem().id() == u.id() && existente.destino().id() == v.id()) ||
-                            (existente.origem().id() == v.id() && existente.destino().id() == u.id())) {
+                    for (Aresta e : todasArestas) {
+                        if ((e.origem().id() == u.id() && e.destino().id() == v.id()) ||
+                            (e.origem().id() == v.id() && e.destino().id() == u.id())) {
                             jaExiste = true;
-                            if (a.peso() < existente.peso()) {
-                                existente.setarPeso(a.peso());
+                            if (a.peso() < e.peso()) {
+                                e.setarPeso(a.peso());
                             }
                             break;
                         }
@@ -51,15 +47,13 @@ public class KruskalAGM {
             }
         }
 
-        // Ordena pelo peso em ordem crescente
+        // Ordena as arestas por peso crescente
         todasArestas.sort(Comparator.comparingDouble(Aresta::peso));
 
-        // Union-Find com vetores primitivos
+        // Union-Find usando vetor de pais
         int[] pai = new int[n];
-        int[] rank = new int[n];
         for (int i = 0; i < n; i++) {
-            pai[i] = i;
-            rank[i] = 0;
+            pai[i] = i; // Cada vértice começa no seu próprio conjunto
         }
 
         List<Aresta> agm = new ArrayList<>();
@@ -68,11 +62,12 @@ public class KruskalAGM {
             int raizU = find(pai, a.origem().id());
             int raizV = find(pai, a.destino().id());
 
+            // Se as raízes são diferentes, a aresta não fecha ciclo
             if (raizU != raizV) {
                 agm.add(a);
-                union(pai, rank, raizU, raizV);
+                pai[raizU] = raizV; // união simples dos conjuntos no vetor pai
                 if (agm.size() == n - 1) {
-                    break;
+                    break; // AGM completa com V - 1 arestas
                 }
             }
         }
@@ -80,29 +75,12 @@ public class KruskalAGM {
         return agm;
     }
 
+    // Procura a raiz do conjunto no vetor pai
     private int find(int[] pai, int i) {
-        int raiz = i;
-        while (raiz != pai[raiz]) {
-            raiz = pai[raiz];
+        while (pai[i] != i) {
+            i = pai[i];
         }
-        int atual = i;
-        while (atual != raiz) {
-            int prox = pai[atual];
-            pai[atual] = raiz;
-            atual = prox;
-        }
-        return raiz;
-    }
-
-    private void union(int[] pai, int[] rank, int raizU, int raizV) {
-        if (rank[raizU] < rank[raizV]) {
-            pai[raizU] = raizV;
-        } else if (rank[raizU] > rank[raizV]) {
-            pai[raizV] = raizU;
-        } else {
-            pai[raizV] = raizU;
-            rank[raizU]++;
-        }
+        return i;
     }
 
     private List<Vertice> vizinhos(Grafo g, Vertice u) {

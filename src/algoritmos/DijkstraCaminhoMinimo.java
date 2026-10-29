@@ -8,10 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Algoritmo de Dijkstra para Caminho Mínimo entre pares de vértices em grafos com pesos não negativos.
- * Utiliza vetores primitivos para distâncias, pais e controle de visitados.
- */
 public class DijkstraCaminhoMinimo {
 
     public ArrayList<Aresta> executar(Grafo g, Vertice origem, Vertice destino) {
@@ -23,10 +19,11 @@ public class DijkstraCaminhoMinimo {
         int s = origem.id();
         int t = destino.id();
 
-        if (s < 0 || s >= n || t < 0 || t >= n || s == t) {
+        if (s == t) {
             return new ArrayList<>();
         }
 
+        // Vetores clássicos do Dijkstra
         double[] dist = new double[n];
         Vertice[] pi = new Vertice[n];
         Aresta[] arestaPai = new Aresta[n];
@@ -42,6 +39,7 @@ public class DijkstraCaminhoMinimo {
         dist[s] = 0.0;
 
         for (int count = 0; count < n; count++) {
+            // Encontra o vértice de menor distância ainda não visitado
             int u = -1;
             double menorDist = Double.POSITIVE_INFINITY;
             for (int i = 0; i < n; i++) {
@@ -57,9 +55,10 @@ public class DijkstraCaminhoMinimo {
 
             visitado[u] = true;
             if (u == t) {
-                break;
+                break; // Chegou ao destino
             }
 
+            // Relaxamento das arestas que partem de u
             Vertice verticeU = g.vertices().get(u);
             for (Vertice v : vizinhos(g, verticeU)) {
                 int idV = v.id();
@@ -79,9 +78,10 @@ public class DijkstraCaminhoMinimo {
         }
 
         if (dist[t] == Double.POSITIVE_INFINITY) {
-            return new ArrayList<>();
+            return new ArrayList<>(); // Não existe caminho até t
         }
 
+        // Reconstrói o caminho de trás para frente usando o vetor arestaPai
         ArrayList<Aresta> caminho = new ArrayList<>();
         int atual = t;
         while (atual != s && arestaPai[atual] != null) {
@@ -89,7 +89,7 @@ public class DijkstraCaminhoMinimo {
             atual = pi[atual].id();
         }
 
-        Collections.reverse(caminho);
+        Collections.reverse(caminho); // Fica na ordem s -> ... -> t
         return caminho;
     }
 
@@ -113,10 +113,10 @@ public class DijkstraCaminhoMinimo {
         if (arestas == null || arestas.isEmpty()) {
             return 0.0;
         }
-        double custoTotal = 0.0;
+        double total = 0.0;
         for (Aresta a : arestas) {
-            custoTotal += a.peso();
+            total += a.peso();
         }
-        return custoTotal;
+        return total;
     }
 }

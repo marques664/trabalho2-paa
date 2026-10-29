@@ -11,25 +11,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-/**
- * Algoritmo de Busca em Largura (BFS).
- */
 public class BuscaEmLargura {
 
-    public static final int BRANCO = 0;
-    public static final int CINZA = 1;
-    public static final int PRETO = 2;
-
-    private int[] d;              // Distâncias / níveis de descoberta
-    private Vertice[] pi;         // Pais / antecessores na árvore BFS
-    private int[] cor;            // Cores (estados) dos vértices
+    private int[] d;              // distância / nível a partir da raiz
+    private Vertice[] pi;         // pai na árvore
+    private int[] cor;
     private ArrayList<Aresta> arestasArvore;
 
     public Collection<Aresta> executar(Grafo g, Vertice verticeInicial) {
-        if (g == null || g.numeroDeVertices() == 0) {
-            return new ArrayList<>();
-        }
-
         int n = g.numeroDeVertices();
         cor = new int[n];
         d = new int[n];
@@ -37,8 +26,8 @@ public class BuscaEmLargura {
         arestasArvore = new ArrayList<>();
 
         for (int i = 0; i < n; i++) {
-            cor[i] = BRANCO;
-            d[i] = -1; // -1 indica inalcançável
+            cor[i] = 0;   // 0 = branco (não visitado)
+            d[i] = -1;    // -1 = inalcançável
             pi[i] = null;
         }
 
@@ -46,26 +35,27 @@ public class BuscaEmLargura {
             return arestasArvore;
         }
 
+        // Fila FIFO para percorrer nível por nível
         Queue<Vertice> fila = new LinkedList<>();
 
         int s = verticeInicial.id();
-        cor[s] = CINZA;
+        cor[s] = 1; // 1 = cinza
         d[s] = 0;
-        pi[s] = null;
         fila.add(verticeInicial);
 
         while (!fila.isEmpty()) {
             Vertice u = fila.poll();
+
             for (Vertice v : vizinhos(g, u)) {
-                if (cor[v.id()] == BRANCO) {
-                    cor[v.id()] = CINZA;
+                if (cor[v.id()] == 0) {
+                    cor[v.id()] = 1;
                     d[v.id()] = d[u.id()] + 1;
                     pi[v.id()] = u;
                     arestasArvore.add(obterAresta(g, u, v));
                     fila.add(v);
                 }
             }
-            cor[u.id()] = PRETO;
+            cor[u.id()] = 2; // 2 = preto (finalizado)
         }
 
         return arestasArvore;
@@ -82,7 +72,7 @@ public class BuscaEmLargura {
     private Aresta obterAresta(Grafo g, Vertice u, Vertice v) {
         try {
             ArrayList<Aresta> arestas = g.arestasEntre(u, v);
-            if (arestas != null && !arestas.isEmpty()) {
+            if (!arestas.isEmpty()) {
                 return arestas.get(0);
             }
         } catch (Exception ignored) {}
@@ -91,5 +81,5 @@ public class BuscaEmLargura {
 
     public int[] getD() { return d; }
     public Vertice[] getPi() { return pi; }
-    public Collection<Aresta> arestasDeArvore() { return arestasArvore != null ? arestasArvore : new ArrayList<>(); }
+    public Collection<Aresta> arestasDeArvore() { return arestasArvore; }
 }

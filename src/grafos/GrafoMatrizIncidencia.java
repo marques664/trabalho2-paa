@@ -127,12 +127,7 @@ public class GrafoMatrizIncidencia implements Grafo {
             if (matrizIncidencia[u][j] == 2) {
                 adjacentes.add(vertices.get(u));
             } else if (matrizIncidencia[u][j] == -1) {
-                for (int dest = 0; dest < numVertices; dest++) {
-                    if (matrizIncidencia[dest][j] == 1) {
-                        adjacentes.add(vertices.get(dest));
-                        break;
-                    }
-                }
+                adjacentes.add(arestas.get(j).destino());
             }
         }
         return adjacentes;
@@ -164,6 +159,6 @@ public class GrafoMatrizIncidencia implements Grafo {
 
     @Override
     public ArrayList<Vertice> vertices() {
-        return new ArrayList<>(vertices);
+        return vertices;
     }
 }

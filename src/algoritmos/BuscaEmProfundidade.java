@@ -9,19 +9,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Algoritmo de Busca em Profundidade (DFS) com classificação de arestas.
- */
 public class BuscaEmProfundidade {
 
-    public static final int BRANCO = 0;
-    public static final int CINZA = 1;
-    public static final int PRETO = 2;
+    // Cores da busca (Cormen)
+    public static final int BRANCO = 0; // não visitado
+    public static final int CINZA = 1;  // na pilha de recursão
+    public static final int PRETO = 2;  // finalizado
 
-    private int[] d;              // Tempos de descoberta
-    private int[] f;              // Tempos de finalização
-    private Vertice[] pi;         // Pais / antecessores na árvore DFS
-    private int[] cor;            // Cores (estados) dos vértices
+    private int[] d;              // tempo de descoberta
+    private int[] f;              // tempo de término
+    private Vertice[] pi;         // pai na árvore
+    private int[] cor;
     private int tempo;
 
     private ArrayList<Aresta> arestasArvore;
@@ -30,10 +28,6 @@ public class BuscaEmProfundidade {
     private ArrayList<Aresta> arestasCruzamento;
 
     public Collection<Aresta> executar(Grafo g, Vertice verticeInicial) {
-        if (g == null || g.numeroDeVertices() == 0) {
-            return new ArrayList<>();
-        }
-
         int n = g.numeroDeVertices();
         cor = new int[n];
         d = new int[n];
@@ -51,14 +45,14 @@ public class BuscaEmProfundidade {
             pi[i] = null;
         }
 
-        // 1. Visita a partir do vértice inicial escolhido
+        // Começa pelo vértice escolhido pelo usuário
         if (verticeInicial != null && verticeInicial.id() >= 0 && verticeInicial.id() < n) {
             if (cor[verticeInicial.id()] == BRANCO) {
                 visitaDFS(g, verticeInicial);
             }
         }
 
-        // 2. Visita os demais vértices não alcançados (floresta DFS)
+        // Visita o restante dos vértices para cobrir todo o grafo
         for (Vertice u : g.vertices()) {
             if (cor[u.id()] == BRANCO) {
                 visitaDFS(g, u);
@@ -77,14 +71,18 @@ public class BuscaEmProfundidade {
             Aresta aresta = obterAresta(g, u, v);
 
             if (cor[v.id()] == BRANCO) {
+                // Aresta de árvore: descobriu um vértice novo
                 arestasArvore.add(aresta);
                 pi[v.id()] = u;
                 visitaDFS(g, v);
             } else if (cor[v.id()] == CINZA) {
+                // Aresta de retorno: encontrou um ancestral ativo (tem ciclo!)
                 arestasRetorno.add(aresta);
             } else if (d[u.id()] < d[v.id()]) {
+                // Aresta de avanço: aponta para um descendente já finalizado
                 arestasAvanco.add(aresta);
             } else {
+                // Aresta de cruzamento: aponta para outro ramo da busca
                 arestasCruzamento.add(aresta);
             }
         }
@@ -105,17 +103,17 @@ public class BuscaEmProfundidade {
     private Aresta obterAresta(Grafo g, Vertice u, Vertice v) {
         try {
             ArrayList<Aresta> arestas = g.arestasEntre(u, v);
-            if (arestas != null && !arestas.isEmpty()) {
+            if (!arestas.isEmpty()) {
                 return arestas.get(0);
             }
         } catch (Exception ignored) {}
         return new Aresta(u, v);
     }
 
-    public Collection<Aresta> arestasDeArvore() { return arestasArvore != null ? arestasArvore : new ArrayList<>(); }
-    public Collection<Aresta> arestasDeRetorno() { return arestasRetorno != null ? arestasRetorno : new ArrayList<>(); }
-    public Collection<Aresta> arestasDeAvanco() { return arestasAvanco != null ? arestasAvanco : new ArrayList<>(); }
-    public Collection<Aresta> arestasDeCruzamento() { return arestasCruzamento != null ? arestasCruzamento : new ArrayList<>(); }
+    public Collection<Aresta> arestasDeArvore() { return arestasArvore; }
+    public Collection<Aresta> arestasDeRetorno() { return arestasRetorno; }
+    public Collection<Aresta> arestasDeAvanco() { return arestasAvanco; }
+    public Collection<Aresta> arestasDeCruzamento() { return arestasCruzamento; }
 
     public int[] getD() { return d; }
     public int[] getF() { return f; }

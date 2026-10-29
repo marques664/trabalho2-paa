@@ -122,6 +122,6 @@ public class GrafoMatrizAdjacencia implements Grafo {
 
     @Override
     public ArrayList<Vertice> vertices() {
-        return new ArrayList<>(vertices);
+        return vertices;
     }
 }

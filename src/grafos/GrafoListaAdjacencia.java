@@ -127,6 +127,6 @@ public class GrafoListaAdjacencia implements Grafo {
 
     @Override
     public ArrayList<Vertice> vertices() {
-        return new ArrayList<>(vertices);
+        return vertices;
     }
 }

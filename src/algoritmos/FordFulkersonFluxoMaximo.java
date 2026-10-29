@@ -10,16 +10,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-/**
- * Algoritmo de Ford-Fulkerson (Edmonds-Karp via BFS) para Fluxo Máximo.
- * Utiliza matriz residual e vetores primitivos para rastrear caminhos aumentantes.
- */
 public class FordFulkersonFluxoMaximo {
 
     public double executar(Grafo g) {
         if (g == null || g.numeroDeVertices() < 2) {
             return 0.0;
         }
+        // Fonte padrão: vértice 0; Sumidouro padrão: último vértice
         return executar(g, g.vertices().get(0), g.vertices().get(g.numeroDeVertices() - 1));
     }
 
@@ -32,10 +29,11 @@ public class FordFulkersonFluxoMaximo {
         int s = fonte.id();
         int t = sumidouro.id();
 
-        if (s < 0 || s >= n || t < 0 || t >= n || s == t) {
+        if (s == t) {
             return 0.0;
         }
 
+        // Matriz de capacidade residual
         double[][] rCap = new double[n][n];
 
         for (Vertice u : g.vertices()) {
@@ -52,25 +50,30 @@ public class FordFulkersonFluxoMaximo {
         double fluxoMaximo = 0.0;
         int[] pai = new int[n];
 
+        // Enquanto existir um caminho aumentante na rede residual de s até t
         while (bfsCaminhoAumentante(rCap, s, t, pai, n)) {
+            // 1. Acha o gargalo (menor capacidade livre no caminho)
             double gargalo = Double.POSITIVE_INFINITY;
             for (int v = t; v != s; v = pai[v]) {
                 int u = pai[v];
                 gargalo = Math.min(gargalo, rCap[u][v]);
             }
 
+            // 2. Atualiza a capacidade residual direta e reversa
             for (int v = t; v != s; v = pai[v]) {
                 int u = pai[v];
                 rCap[u][v] -= gargalo;
                 rCap[v][u] += gargalo;
             }
 
+            // 3. Soma ao fluxo acumulado
             fluxoMaximo += gargalo;
         }
 
         return fluxoMaximo;
     }
 
+    // BFS para achar o caminho aumentante mais curto em número de arestas (Edmonds-Karp)
     private boolean bfsCaminhoAumentante(double[][] rCap, int s, int t, int[] pai, int n) {
         boolean[] visitado = new boolean[n];
         for (int i = 0; i < n; i++) {
