@@ -10,8 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-// Algoritmo de Ford-Fulkerson (Edmonds-Karp) para Fluxo Maximo
-// Busca repetidamente caminhos aumentantes na rede residual usando BFS ate saturar a capacidade.
+// Algoritmo de Ford-Fulkerson para Fluxo Maximo
+// Busca repetidamente caminhos aumentantes na rede residual ate saturar a capacidade.
 public class FordFulkersonFluxoMaximo {
 
     // Versao padrao: fonte = primeiro vertice (0), sumidouro = ultimo vertice (n - 1)
@@ -76,7 +76,7 @@ public class FordFulkersonFluxoMaximo {
         return fluxoMaximo;
     }
 
-    // BFS para encontrar o caminho aumentante mais curto em numero de arestas (Edmonds-Karp)
+    // Busca em largura para encontrar um caminho aumentante na rede residual
     private boolean bfsCaminhoAumentante(double[][] rCap, int s, int t, int[] pai, int n) {
         boolean[] visitado = new boolean[n];
         for (int i = 0; i < n; i++) {

@@ -20,7 +20,7 @@ O projeto foi organizado de forma modular em dois pacotes principais, separando 
   * `KosarajuCFC`: Componentes Fortemente Conexos e geração do Grafo Reduzido.
   * `KruskalAGM`: Árvore Geradora Mínima com Union-Find em vetores primitivos.
   * `DijkstraCaminhoMinimo`: Menor caminho e reconstituição do trajeto ordenado.
-  * `FordFulkersonFluxoMaximo`: Fluxo máximo em rede residual (Edmonds-Karp).
+  * `FordFulkersonFluxoMaximo`: Fluxo máximo em rede residual (Ford-Fulkerson).
   * `AlgoritmosEmGrafosImpl`: Fachada (*Facade*) que implementa `AlgoritmosEmGrafos`.
 * **`src/Main.java`:** Menu interativo de terminal para carregar grafos e rodar os algoritmos.
 * **`tests/`:** Instâncias de teste em `.txt` com casos de borda e piores casos (`01_dag_aciclico.txt`, `02_multiplos_cfc.txt`, `03_desconexo.txt`, `04_rede_fluxo.txt`, `05_grafo_denso.txt`) e a classe de benchmark [TestePerformance.java](file:///C:/faculdade/PAA/Trabalho2/tests/TestePerformance.java).

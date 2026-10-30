@@ -10,7 +10,6 @@ import java.util.List;
 
 // Algoritmo de Dijkstra para Caminho Minimo
 // Calcula o menor trajeto entre origem e destino em grafos com pesos nao-negativos
-// utilizando busca linear no vetor de distancias O(V^2).
 public class DijkstraCaminhoMinimo {
 
     // Retorna a sequencia ordenada de arestas que formam o caminho minimo de origem ate destino
